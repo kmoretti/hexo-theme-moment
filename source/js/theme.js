@@ -10,9 +10,6 @@
   const choices = new Set(['system', 'light', 'dark']);
   const transitionDuration = 400;
   let transitionBusy = false;
-  let manifestSource = null;
-  let manifestSourceHref = '';
-  let manifestBlobUrl = '';
   let manifestSyncQueued = false;
 
   function clampHue(value) {
@@ -109,50 +106,16 @@
     }, 0);
   };
 
-  const loadManifestSource = async sourceHref => {
-    if (!sourceHref) return null;
-    if (manifestSource && manifestSourceHref === sourceHref) return manifestSource;
-    const response = await fetch(sourceHref, { cache: 'no-store' });
-    if (!response.ok) throw new Error(`manifest ${response.status}`);
-    manifestSource = await response.json();
-    manifestSourceHref = sourceHref;
-    return manifestSource;
-  };
-
-  const syncThemeChrome = async () => {
+  const syncThemeChrome = () => {
     const computed = getComputedStyle(root);
     const resolvedTheme = root.dataset.theme || resolve(getChoice());
     const themeColor = (resolvedTheme === 'dark'
       ? computed.getPropertyValue('--paper-accent-primary-strong')
       : computed.getPropertyValue('--paper-accent-primary')).trim() || '#6f9274';
-    const backgroundColor = computed.getPropertyValue('--paper-bg').trim() || '#f4efe4';
 
     document.querySelectorAll('meta[name="theme-color"]').forEach(meta => {
       meta.setAttribute('content', themeColor);
     });
-
-    const manifestLink = document.querySelector('link[rel="manifest"]');
-    if (!manifestLink) return;
-
-    const sourceHref = manifestLink.dataset.originalHref || manifestLink.getAttribute('href');
-    if (!manifestLink.dataset.originalHref) manifestLink.dataset.originalHref = sourceHref || '';
-
-    try {
-      const source = await loadManifestSource(sourceHref);
-      if (!source) return;
-      const manifest = {
-        ...source,
-        theme_color: themeColor,
-        background_color: backgroundColor,
-      };
-      const blob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
-      const blobUrl = URL.createObjectURL(blob);
-      if (manifestBlobUrl) URL.revokeObjectURL(manifestBlobUrl);
-      manifestBlobUrl = blobUrl;
-      manifestLink.setAttribute('href', blobUrl);
-    } catch (_) {
-      // manifest 拉取失败时保留静态配置；meta theme-color 已同步。
-    }
   };
 
   const applyAccent = (hue, options = {}) => {
@@ -439,7 +402,4 @@
     syncChrome: queueManifestSync,
   };
 
-  window.addEventListener('beforeunload', () => {
-    if (manifestBlobUrl) URL.revokeObjectURL(manifestBlobUrl);
-  });
 })();
