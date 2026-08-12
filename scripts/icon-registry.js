@@ -48,7 +48,7 @@ const SOCIAL_ALIASES = {
 };
 const BUILTIN_ICONS = [
   'house', 'file-text', 'link', 'book-open', 'user', 'chevron-down', 'menu',
-  'sun-moon', 'palette', 'rotate-ccw', 'arrow-up', 'arrow-right', 'x', 'chevron-left', 'chevron-right',
+  'sun-moon', 'palette', 'rotate-ccw', 'download', 'arrow-up', 'arrow-right', 'x', 'chevron-left', 'chevron-right',
   'zap', 'external-link', 'circle', 'mail', 'rss', 'search', 'copy', 'check',
   'images', 'image', 'lock-keyhole', 'lock-keyhole-open', 'sticky-note', 'pause', 'play', 'radio', 'zoom-in',
   'skip-back', 'skip-forward', 'music-2', 'volume', 'volume-x', 'file-music'

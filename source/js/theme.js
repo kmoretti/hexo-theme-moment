@@ -225,6 +225,8 @@
   const accentPicker = () => document.querySelector('[data-accent-picker]');
   const accentToggle = () => document.querySelector('[data-accent-toggle]');
   const accentPanel = () => document.querySelector('[data-accent-panel]');
+  const pwaInstallToggle = () => document.querySelector('[data-pwa-install]');
+  let deferredInstallPrompt = null;
   const nav = document.querySelector('[data-site-nav]');
   const navToggle = document.querySelector('[data-nav-toggle]');
   const navGroups = () => Array.from(document.querySelectorAll('[data-nav-group]'));
@@ -283,6 +285,34 @@
       const next = nextChoice(current);
       animateTheme(event, next, root.dataset.theme || resolve(current), resolve(next));
     });
+  });
+
+  const syncPwaInstallToggle = () => {
+    const button = pwaInstallToggle();
+    if (!button) return;
+    button.hidden = !deferredInstallPrompt;
+  };
+
+  window.addEventListener('beforeinstallprompt', event => {
+    event.preventDefault();
+    deferredInstallPrompt = event;
+    syncPwaInstallToggle();
+  });
+
+  window.addEventListener('appinstalled', () => {
+    deferredInstallPrompt = null;
+    syncPwaInstallToggle();
+  });
+
+  pwaInstallToggle()?.addEventListener('click', async () => {
+    if (!deferredInstallPrompt) return;
+    const button = pwaInstallToggle();
+    button?.setAttribute('aria-busy', 'true');
+    button && (button.disabled = true);
+    deferredInstallPrompt.prompt();
+    await deferredInstallPrompt.userChoice;
+    deferredInstallPrompt = null;
+    syncPwaInstallToggle();
   });
 
   document.querySelectorAll('[data-nav-toggle]').forEach(button => {

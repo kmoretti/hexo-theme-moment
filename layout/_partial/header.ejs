@@ -78,6 +78,10 @@
           <p id="paper-accent-hint" class="accent-panel__hint">保留纸张与手账底色，只调整全站彩色语义层。</p>
         </div>
       </div>
+      <button class="pwa-install-toggle" type="button" data-pwa-install aria-label="安装应用" title="安装应用" hidden>
+        <%- paper_moments_icon('download', { size: '18', cls: 'pwa-install-toggle__icon' }) %>
+        <span>安装应用</span>
+      </button>
       <button class="theme-toggle" type="button" data-theme-toggle aria-label="切换主题模式" aria-haspopup="true">
         <%- paper_moments_icon('sun-moon', { size: '18', cls: 'theme-toggle__icon' }) %>
         <span data-theme-label>跟随系统</span>

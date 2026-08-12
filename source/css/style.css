@@ -198,7 +198,7 @@ img { max-width: 100%; }
 }
 .site-nav { display: flex; flex: 1 1 auto; min-width: 0; align-items: center; justify-content: flex-end; gap: 7px; }
 .site-accent { position: relative; display: flex; min-width: 0; }
-.site-nav__link, .theme-toggle, .accent-toggle {
+.site-nav__link, .theme-toggle, .accent-toggle, .pwa-install-toggle {
   display: inline-flex;
   min-height: 42px;
   align-items: center;
@@ -217,8 +217,8 @@ img { max-width: 100%; }
   backface-visibility: hidden;
   transition: color .2s ease, background-color .2s ease, border-color .2s ease, transform .2s ease;
 }
-.theme-toggle, .accent-toggle { padding-inline: 11px; }
-.site-nav__link:hover, .site-nav__link.is-active, .theme-toggle:hover, .accent-toggle:hover, .site-accent.is-open .accent-toggle {
+.theme-toggle, .accent-toggle, .pwa-install-toggle { padding-inline: 11px; }
+.site-nav__link:hover, .site-nav__link.is-active, .theme-toggle:hover, .accent-toggle:hover, .pwa-install-toggle:hover, .site-accent.is-open .accent-toggle {
   border-color: var(--paper-line);
   background: var(--paper-sheet-soft);
   color: var(--paper-ink);
@@ -233,12 +233,14 @@ img { max-width: 100%; }
 }
 .site-nav__label { min-width: 0; line-height: 1; white-space: nowrap; }
 
-.theme-toggle, .accent-toggle { cursor: pointer; }
-.theme-toggle:disabled { cursor: wait; opacity: .62; }
+.theme-toggle, .accent-toggle, .pwa-install-toggle { cursor: pointer; }
+.theme-toggle:disabled, .pwa-install-toggle:disabled { cursor: wait; opacity: .62; }
 .theme-toggle.is-transitioning .theme-toggle__icon { animation: paper-theme-pulse .7s ease-in-out infinite alternate; }
-.theme-toggle__icon, .accent-toggle__icon { width: 18px; height: 18px; color: var(--paper-orange); stroke-width: 1.85; }
+.theme-toggle__icon, .accent-toggle__icon, .pwa-install-toggle__icon { width: 18px; height: 18px; color: var(--paper-orange); stroke-width: 1.85; }
 .accent-toggle__icon { color: var(--paper-blue); }
+.pwa-install-toggle__icon { color: var(--paper-green-deep); }
 .accent-toggle__label,
+.pwa-install-toggle span,
 .theme-toggle [data-theme-label] {
   display: none;
   min-width: 0;
@@ -2372,8 +2374,8 @@ img { max-width: 100%; }
   .site-header { padding: 16px 20px 0; }
   .site-header__inner { gap: 12px; }
   .site-nav { gap: 4px; }
-  .site-nav__link, .theme-toggle, .accent-toggle { gap: 8px; padding-inline: 10px; font-size: 12px; }
-  .site-nav__icon, .theme-toggle__icon, .accent-toggle__icon { width: 17px; height: 17px; }
+  .site-nav__link, .theme-toggle, .accent-toggle, .pwa-install-toggle { gap: 8px; padding-inline: 10px; font-size: 12px; }
+  .site-nav__icon, .theme-toggle__icon, .accent-toggle__icon, .pwa-install-toggle__icon { width: 17px; height: 17px; }
   .page-shell { width: min(100% - 40px, var(--paper-content-width)); }
   .page-shell--shuoshuo .bb-channel-portable .bb-channel-feed { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .links-group__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -2384,7 +2386,8 @@ img { max-width: 100%; }
   .site-nav { gap: 4px; }
   .site-nav__link,
   .theme-toggle,
-  .accent-toggle { min-height: 40px; gap: 8px; padding-inline: 10px; font-size: 12px; }
+  .accent-toggle,
+  .pwa-install-toggle { min-height: 40px; gap: 8px; padding-inline: 10px; font-size: 12px; }
   .site-nav__caret { margin-left: 0; }
 }
 @media (max-width: 640px) {
@@ -2397,9 +2400,10 @@ img { max-width: 100%; }
   .nav-toggle:hover, .nav-toggle:focus-visible { border-color: var(--paper-orange-soft); color: var(--paper-green-deep); }
   .site-nav { position: absolute; top: 68px; right: 14px; left: 14px; display: none; flex-direction: column; align-items: stretch; gap: 3px; padding: 9px; border: 1px solid var(--paper-line); border-radius: 8px 15px 10px 14px; background: var(--paper-sheet); box-shadow: var(--paper-shadow); }
   .site-nav.is-open { display: flex; }
-  .site-nav__link, .theme-toggle, .accent-toggle { min-height: 44px; justify-content: flex-start; gap: 11px; padding: 11px 13px; border-radius: 5px; }
-  .site-nav__icon, .theme-toggle__icon, .accent-toggle__icon { width: 18px; height: 18px; }
+  .site-nav__link, .theme-toggle, .accent-toggle, .pwa-install-toggle { min-height: 44px; justify-content: flex-start; gap: 11px; padding: 11px 13px; border-radius: 5px; }
+  .site-nav__icon, .theme-toggle__icon, .accent-toggle__icon, .pwa-install-toggle__icon { width: 18px; height: 18px; }
   .accent-toggle__label,
+  .pwa-install-toggle span,
   .theme-toggle [data-theme-label] { display: inline; }
   .site-accent { display: block; width: 100%; }
   .accent-toggle { width: 100%; }
