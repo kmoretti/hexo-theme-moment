@@ -1,0 +1,15 @@
+<% const twikoo = config.twikoo || {}; %>
+<% const comments = theme.comments || {}; %>
+<section id="paper-moments-comments" class="comments-section" data-comments-path="<%= comments.path || '/shuoshuo/' %>" data-twikoo-scope data-twikoo-path="<%= comments.path || '/shuoshuo/' %>" data-twikoo-id="twikoo" data-twikoo-label="评论内容">
+  <div class="comments-section__heading">
+    <span class="section-kicker">留言簿</span>
+    <h2>说点什么</h2>
+  </div>
+  <% if (comments.enable === false) { %>
+    <p class="comments-section__notice">评论功能已关闭。</p>
+  <% } else if (!twikoo.env_id) { %>
+    <p class="comments-section__notice"><%= comments.unconfigured_label || '评论区尚未配置。' %></p>
+  <% } else { %>
+    <div id="twikoo" class="comments-section__twikoo" data-twikoo-root aria-busy="true"></div>
+  <% } %>
+</section>

@@ -1,0 +1,87 @@
+<% const pagePath = String(page.path || '').replace(/^\/+/, ''); %>
+<% const currentPath = pagePath === 'index.html' ? '/' : `/${pagePath.replace(/index\.html$/, '')}`; %>
+<% const normalizeNavPath = value => {
+  const normalized = String(value || '')
+    .split(/[?#]/)[0]
+    .replace(/^\/+/, '')
+    .replace(/\/+$/, '')
+    .replace(/(^|\/)index\.html$/i, '')
+    .replace(/\/+$/, '');
+  return normalized ? `/${normalized}/` : '/';
+}; %>
+<% const isNavPathActive = value => normalizeNavPath(value) === normalizeNavPath(currentPath); %>
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="site-brand" href="<%= url_for('/') %>">
+      <span class="site-brand__mark" aria-hidden="true"><%= theme.site_mark || 'PM' %></span>
+      <span class="site-brand__name"><%= theme.site_name || config.title || '纸间日常' %></span>
+    </a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" data-nav-toggle>
+      <%- paper_moments_icon('menu', { size: '19', cls: 'nav-toggle__icon' }) %>
+      <span class="sr-only">打开导航</span>
+    </button>
+    <nav id="site-nav" class="site-nav" aria-label="主导航" data-site-nav>
+      <% (theme.navigation || []).forEach((item, index) => { %>
+        <% const children = Array.isArray(item.children) ? item.children.filter(child => child && child.path) : []; %>
+        <% const itemActive = Boolean(item.path && isNavPathActive(item.path)) || children.some(child => isNavPathActive(child.path)); %>
+        <% const submenuId = `nav-submenu-${index + 1}`; %>
+        <% if (children.length) { %>
+          <div class="site-nav__item site-nav__item--parent<%= itemActive ? ' is-active' : '' %>" data-nav-group>
+            <button class="site-nav__link site-nav__parent<%= itemActive ? ' is-active' : '' %>" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="<%= submenuId %>" data-nav-parent>
+              <%- paper_moments_icon(item.icon || 'circle', { size: '18', cls: 'site-nav__icon' }) %>
+              <span class="site-nav__label"><%= item.name %></span>
+              <%- paper_moments_icon('chevron-down', { size: '16', cls: 'site-nav__caret' }) %>
+            </button>
+            <div id="<%= submenuId %>" class="site-nav__submenu" role="menu" aria-label="<%= item.name %> 菜单" aria-hidden="true" inert data-nav-submenu>
+              <% children.forEach((child) => { %>
+                <% const childActive = isNavPathActive(child.path); %>
+                <a class="site-nav__submenu-link<%= childActive ? ' is-active' : '' %>" role="menuitem" href="<%= url_for(child.path) %>" data-nav-path="<%= child.path %>"<% if (childActive) { %> aria-current="page"<% } %>>
+                  <%- paper_moments_icon(child.icon || 'circle', { size: '17', cls: 'site-nav__icon' }) %>
+                  <span class="site-nav__label"><%= child.name %></span>
+                </a>
+              <% }); %>
+            </div>
+          </div>
+        <% } else if (item.path) { %>
+          <a class="site-nav__link<%= itemActive ? ' is-active' : '' %>" href="<%= url_for(item.path) %>" data-nav-path="<%= item.path %>"<% if (itemActive) { %> aria-current="page"<% } %>>
+            <%- paper_moments_icon(item.icon || 'circle', { size: '18', cls: 'site-nav__icon' }) %>
+            <span class="site-nav__label"><%= item.name %></span>
+          </a>
+        <% } %>
+      <% }); %>
+      <div class="site-accent" data-accent-picker>
+        <button class="accent-toggle" type="button" data-accent-toggle aria-label="调节站点强调色" aria-haspopup="dialog" aria-expanded="false" aria-controls="accent-panel">
+          <%- paper_moments_icon('palette', { size: '18', cls: 'accent-toggle__icon' }) %>
+          <span class="accent-toggle__label">强调色</span>
+        </button>
+        <div id="accent-panel" class="accent-panel" data-accent-panel role="dialog" aria-label="强调色调节面板" aria-hidden="true" inert>
+          <div class="accent-panel__header">
+            <div>
+              <p class="accent-panel__eyebrow">ACCENT / 强调色</p>
+              <p class="accent-panel__title">纸张之外的颜色气氛</p>
+            </div>
+            <button class="accent-panel__reset" type="button" data-accent-reset aria-label="恢复默认强调色" title="恢复默认强调色">
+              <%- paper_moments_icon('rotate-ccw', { size: '16', cls: 'accent-panel__reset-icon' }) %>
+            </button>
+          </div>
+          <div class="accent-panel__preview" aria-hidden="true">
+            <span class="accent-panel__swatch accent-panel__swatch--primary"></span>
+            <span class="accent-panel__swatch accent-panel__swatch--secondary"></span>
+            <span class="accent-panel__swatch accent-panel__swatch--accent"></span>
+            <span class="accent-panel__swatch accent-panel__swatch--highlight"></span>
+          </div>
+          <label class="accent-panel__range" for="paper-accent-hue">
+            <span class="accent-panel__range-label">色相</span>
+            <input id="paper-accent-hue" type="range" min="0" max="360" step="1" value="136" data-accent-range aria-describedby="paper-accent-hint">
+            <span class="accent-panel__value" data-accent-value>136°</span>
+          </label>
+          <p id="paper-accent-hint" class="accent-panel__hint">保留纸张与手账底色，只调整全站彩色语义层。</p>
+        </div>
+      </div>
+      <button class="theme-toggle" type="button" data-theme-toggle aria-label="切换主题模式" aria-haspopup="true">
+        <%- paper_moments_icon('sun-moon', { size: '18', cls: 'theme-toggle__icon' }) %>
+        <span data-theme-label>跟随系统</span>
+      </button>
+    </nav>
+  </div>
+</header>

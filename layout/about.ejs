@@ -1,0 +1,116 @@
+<% const profile = theme.profile || {}; %>
+<% const about = theme.about || {}; %>
+<% const journey = about.journey || {}; %>
+<% const sponsors = about.sponsors || {}; %>
+<% const authorTags = Array.isArray(about.author_tags) ? about.author_tags.filter(Boolean) : []; %>
+<% const authorEyebrow = (about.author && about.author.eyebrow) || 'ABOUT ME / 关于作者'; %>
+<% const chargePaths = color => `<path d="M1 77H234.226L307.006 24H790" stroke="${color}" stroke-width="20"></path><path d="M0 140H233.035L329.72 71H1028" stroke="${color}" stroke-width="20"></path><path d="M1 255H234.226L307.006 307H790" stroke="${color}" stroke-width="20"></path><path d="M0 305H233.035L329.72 375H1028" stroke="${color}" stroke-width="20"></path><rect y="186" width="236" height="24" fill="${color}"></rect><ellipse cx="790" cy="25.5" rx="25" ry="25.5" fill="${color}"></ellipse><circle r="14" transform="matrix(1 0 0 -1 790 25)" fill="#ffffff"></circle><ellipse cx="790" cy="307.5" rx="25" ry="25.5" fill="${color}"></ellipse><circle r="14" transform="matrix(1 0 0 -1 790 308)" fill="#ffffff"></circle>`; %>
+<section class="page-shell page-shell--about" aria-labelledby="about-title" data-about-root>
+  <div class="page-heading page-heading--about">
+    <span class="section-kicker"><%= about.eyebrow || 'ABOUT / 关于' %></span>
+    <h1 id="about-title"><%= page.title || about.title || '关于' %></h1>
+    <p><%= about.description || '一页关于这个站点、写下这些字的人，以及所有来过的人。' %></p>
+  </div>
+
+  <section class="about-author" aria-labelledby="about-author-title">
+    <div class="about-author__paper paper-surface">
+      <span class="paper-tape paper-tape--top" aria-hidden="true"></span>
+      <div class="about-author__avatar">
+        <div class="about-photo">
+          <span class="about-photo__tape about-photo__tape--left" aria-hidden="true"></span>
+          <span class="about-photo__tape about-photo__tape--right" aria-hidden="true"></span>
+          <span class="about-photo__frame">
+            <img src="<%= profile.avatar || '' %>" alt="<%= profile.name || '站点作者' %>的头像">
+          </span>
+          <span class="about-photo__caption"><%= profile.name || '站点作者' %></span>
+        </div>
+      </div>
+      <div class="about-author__info">
+        <span class="section-kicker"><%= authorEyebrow %></span>
+        <h2 id="about-author-title"><%= profile.name || '站点作者' %></h2>
+        <p class="about-author__role"><%= profile.role || '日常记录者' %></p>
+        <p class="about-author__bio"><%= profile.bio || '' %></p>
+        <% if (authorTags.length) { %>
+          <ul class="about-author__tags">
+            <% authorTags.forEach((tag, index) => { %>
+              <li class="about-author__tag about-author__tag--<%= (index % 3) + 1 %>"><%= tag %></li>
+            <% }); %>
+          </ul>
+        <% } %>
+      </div>
+      <span class="paper-sticker paper-sticker--about" aria-hidden="true">keep<br>notes</span>
+    </div>
+  </section>
+
+  <section class="about-journey" aria-labelledby="about-journey-title">
+    <div class="about-section-heading">
+      <span class="section-kicker"><%= journey.eyebrow || 'JOURNEY / 心路历程' %></span>
+      <h2 id="about-journey-title"><%= journey.title || '心路历程' %></h2>
+      <% if (journey.description) { %><p><%= journey.description %></p><% } %>
+    </div>
+    <div class="about-journey__stage">
+      <span class="paper-tape paper-tape--journey" aria-hidden="true"></span>
+      <div class="about-journey__paper paper-surface">
+        <div class="about-journey__content">
+          <%- page.content %>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="about-sponsors" aria-labelledby="about-sponsors-title" data-about-sponsors-root data-endpoint="<%= sponsors.data_url || '' %>">
+    <div class="about-section-heading about-section-heading--sponsors">
+      <span class="section-kicker"><%= sponsors.eyebrow || 'SPONSORS / 致谢' %></span>
+      <h2 id="about-sponsors-title"><%= sponsors.title || '致谢名单' %></h2>
+      <p><%= sponsors.description || '感谢每一位支持者，让这个小角落一直亮着灯。' %></p>
+    </div>
+    <div class="about-sponsors__toolbar" data-about-sponsors-toolbar hidden>
+      <span class="about-sponsors__message" data-about-sponsors-message></span>
+      <button class="paper-retry" type="button" data-about-sponsors-retry><%= sponsors.retry_label || '重新加载' %></button>
+    </div>
+    <div class="about-sponsors__status" data-about-sponsors-status role="status" aria-live="polite"><%= sponsors.loading_label || '正在整理支持者的来信……' %></div>
+    <ul class="about-sponsors__wall" data-about-sponsors-wall></ul>
+    <div class="about-sponsors__cta" data-about-sponsors-cta hidden>
+      <div class="about-charge" data-about-sponsors-charge>
+        <a class="about-charge__button" href="<%= sponsors.support_url || '#' %>" target="_blank" rel="noopener noreferrer" aria-label="<%= sponsors.support_label || '投喂一杯咖啡' %>">
+          <span class="about-charge__bolt" aria-hidden="true"><%- paper_moments_icon('zap', { size: '17' }) %></span>
+          <span class="about-charge__label"><%= sponsors.support_label || '投喂一杯咖啡' %></span>
+        </a>
+        <span class="about-charge__tube" aria-hidden="true">
+          <svg class="about-charge__tube-svg" viewBox="0 0 1028 385" fill="none" xmlns="http://www.w3.org/2000/svg"><%- chargePaths('#e5e9ef') %></svg>
+          <span class="about-charge__mask">
+            <svg class="about-charge__mask-svg" viewBox="0 0 1028 385" fill="none" xmlns="http://www.w3.org/2000/svg"><%- chargePaths('#f25d8e') %></svg>
+          </span>
+          <span class="about-charge__flow">
+            <svg class="about-charge__flow-svg" viewBox="0 0 1028 385" fill="none" xmlns="http://www.w3.org/2000/svg"><%- chargePaths('#ffd52b') %></svg>
+          </span>
+        </span>
+        <span class="about-charge__people" data-about-sponsors-people hidden>共 <b data-about-sponsors-count>0</b> 人</span>
+      </div>
+      <span class="about-sponsors__cta-note"><%= sponsors.support_note || '' %></span>
+    </div>
+  </section>
+</section>
+
+<div class="about-sponsor-detail" data-about-sponsor-detail role="dialog" aria-modal="true" aria-labelledby="about-sponsor-detail-title" hidden>
+  <button class="about-sponsor-detail__backdrop" type="button" data-about-sponsor-detail-close aria-label="关闭赞助者详情"></button>
+  <div class="about-sponsor-detail__panel">
+    <span class="paper-tape paper-tape--detail" aria-hidden="true"></span>
+    <button class="about-sponsor-detail__close" type="button" data-about-sponsor-detail-close aria-label="关闭详情" aria-describedby="about-sponsor-detail-title">
+      <%- paper_moments_icon('x', { size: '18', cls: 'about-sponsor-detail__close-icon' }) %>
+    </button>
+    <figure class="about-sponsor-detail__card">
+      <span class="about-sponsor-detail__avatar" data-about-detail-avatar></span>
+      <figcaption class="about-sponsor-detail__body">
+        <span class="section-kicker" id="about-sponsor-detail-title">THANKS / 致谢</span>
+        <div class="about-sponsor-detail__name-row">
+          <strong class="about-sponsor-detail__name" data-about-detail-name></strong>
+          <span class="about-sponsor-detail__tier" data-about-detail-tier hidden></span>
+        </div>
+        <p class="about-sponsor-detail__message" data-about-detail-message hidden></p>
+        <span class="about-sponsor-detail__date" data-about-detail-date hidden></span>
+        <a class="about-sponsor-detail__link" data-about-detail-link target="_blank" rel="noopener noreferrer" hidden></a>
+      </figcaption>
+    </figure>
+  </div>
+</div>

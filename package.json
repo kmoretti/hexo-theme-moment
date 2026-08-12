@@ -1,0 +1,7 @@
+{
+  "name": "paper-moments",
+  "version": "0.1.0",
+  "description": "纸张手账风格的 Hexo 说说主题",
+  "license": "MIT",
+  "keywords": ["hexo-theme", "moments", "paper", "microblog"]
+}

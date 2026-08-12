@@ -1,0 +1,110 @@
+<% const board = theme.comment_board || {}; %>
+<% const comments = theme.comments || {}; %>
+<% const twikoo = config.twikoo || {}; %>
+<% const lines = Array.isArray(board.letter_lines) && board.letter_lines.length
+  ? board.letter_lines
+  : ['本站有哪些做得好或者不好的地方？', '或者你有什么改进的建议？', '又或者你有什么具体的问题需要咨询？', '都可以在下方评论区留言哦~~~']; %>
+<% const boardPath = String(board.path || '/comment/'); %>
+<% const enabled = board.enable !== false && comments.enable !== false; %>
+<% const envelope = board.envelope || {}; %>
+<% const wrapHeight = Number(envelope.wrap_height) || 447; %>
+<% const openHeight = Number(envelope.open_height) || 1050; %>
+<% const openOffset = Number.isFinite(Number(envelope.open_offset)) ? Number(envelope.open_offset) : -200; %>
+<% const danmakuTrim = Number(envelope.danmaku_open_bottom_trim) || 140; %>
+<section class="page-shell page-shell--comment" data-comment-board aria-labelledby="comment-board-title">
+  <div class="page-heading page-heading--comment">
+    <span class="section-kicker"><%= board.eyebrow || 'GUESTBOOK / 留言板' %></span>
+    <h1 id="comment-board-title"><%= board.title || page.title || '留一页话给我' %></h1>
+    <p><%= board.description || '想说的话，都会被好好收进这本手账。' %></p>
+  </div>
+
+  <div
+    class="comment-envelope-maincontent"
+    data-comment-envelope-main
+    style="--comment-wrap-height: <%= wrapHeight %>px; --comment-open-height: <%= openHeight %>px; --comment-open-offset: <%= openOffset %>px; --comment-danmaku-open-bottom-trim: <%= danmakuTrim %>px;"
+  >
+    <div class="comment-envelope-danmaku" data-comment-danmaku aria-hidden="true">
+      <div class="comment-envelope-danmaku__screen" data-comment-danmaku-screen></div>
+    </div>
+
+    <div
+      class="comment-form-wrap comment-envelope-desktop"
+      id="comment-envelope-wrap"
+      data-comment-envelope-wrap
+      style="--comment-wrap-height: <%= wrapHeight %>px; --comment-open-height: <%= openHeight %>px; --comment-open-offset: <%= openOffset %>px;"
+    >
+      <img class="comment-beforeimg" src="<%= url_for('comment/envelope/before.png') %>" alt="信封背景">
+      <div class="comment-envelope">
+        <div class="comment-formmain">
+          <img class="comment-headerimg" src="<%= url_for('comment/envelope/cover.png') %>" alt="信笺封面">
+          <div class="comment-comments-main">
+            <h3 class="comment-title3"><%= board.letter_title || `✨来自${theme.profile?.name || '站点作者'}的留言:` %></h3>
+            <div class="comment-comments-copy">
+              <% lines.forEach((line) => { %><p><%= line %></p><% }); %>
+            </div>
+            <div class="comment-bottomcontent">
+              <img class="comment-bottomimg" src="<%= url_for('comment/envelope/line.png') %>" alt="">
+            </div>
+            <p class="comment-bottomhr"><%= board.letter_footer || '小站站长亲自为您服务！' %></p>
+          </div>
+        </div>
+      </div>
+      <img class="comment-afterimg" src="<%= url_for('comment/envelope/after.png') %>" alt="信封前景">
+    </div>
+
+    <div class="comment-envelope-mobile">
+      <div class="comment-formmain">
+        <img class="comment-headerimg" src="<%= url_for('comment/envelope/cover.png') %>" alt="信笺封面">
+        <div class="comment-comments-main">
+          <h3 class="comment-title3"><%= board.letter_title || `✨来自${theme.profile?.name || '站点作者'}的留言:` %></h3>
+          <div class="comment-comments-copy">
+            <% lines.forEach((line) => { %><p><%= line %></p><% }); %>
+          </div>
+          <div class="comment-bottomcontent">
+            <img class="comment-bottomimg" src="<%= url_for('comment/envelope/line.png') %>" alt="">
+          </div>
+          <p class="comment-bottomhr"><%= board.letter_footer || '小站站长亲自为您服务！' %></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="comment-envelope-controls" role="group" aria-label="留言板控制">
+    <button type="button" class="comment-control-button comment-control-button--note comment-envelope-toggle" data-comment-envelope-toggle aria-controls="comment-envelope-wrap" aria-expanded="false">
+      <span class="comment-control__icon comment-control__icon--note" aria-hidden="true">
+        <%- paper_moments_icon('sticky-note', { size: '16' }) %>
+      </span>
+      <span data-comment-envelope-toggle-label><%= board.open_label || '打开这封便签' %></span>
+      <span class="comment-control__icon comment-envelope-toggle__chevron" aria-hidden="true">
+        <%- paper_moments_icon('chevron-down', { size: '14' }) %>
+      </span>
+    </button>
+    <button type="button" class="comment-control-button comment-control-button--danmaku comment-envelope-pause" data-comment-danmaku-toggle aria-pressed="false" hidden>
+      <span class="comment-control__icon comment-control__icon--danmaku" aria-hidden="true">
+        <%- paper_moments_icon('radio', { size: '16' }) %>
+      </span>
+      <span class="comment-control__icon comment-envelope-pause__pause-icon" data-comment-danmaku-pause-icon aria-hidden="true">
+        <%- paper_moments_icon('pause', { size: '14' }) %>
+      </span>
+      <span class="comment-control__icon comment-envelope-pause__play-icon" data-comment-danmaku-play-icon aria-hidden="true" hidden>
+        <%- paper_moments_icon('play', { size: '14' }) %>
+      </span>
+      <span data-comment-danmaku-toggle-label><%= board.danmaku?.pause_label || '暂停弹幕' %></span>
+    </button>
+    <p class="comment-envelope-status" data-comment-danmaku-status role="status" aria-live="polite"></p>
+  </div>
+
+  <section class="comment-board-comments" id="comment-board-comments" aria-labelledby="comment-board-comments-title" data-twikoo-scope data-twikoo-path="<%= boardPath %>" data-twikoo-id="twikoo-comment-board" data-twikoo-label="留言内容">
+    <div class="comments-section__heading">
+      <span class="section-kicker"><%= board.comments_kicker || 'MESSAGE BOOK / 留言簿' %></span>
+      <h2 id="comment-board-comments-title"><%= board.comments_title || '写下你的话' %></h2>
+    </div>
+    <% if (!enabled) { %>
+      <p class="comments-section__notice">评论功能已关闭。</p>
+    <% } else if (!twikoo.env_id) { %>
+      <p class="comments-section__notice"><%= comments.unconfigured_label || '评论区尚未配置。' %></p>
+    <% } else { %>
+      <div id="twikoo-comment-board" class="comment-board-comments__twikoo" data-twikoo-root aria-busy="true"></div>
+    <% } %>
+  </section>
+</section>

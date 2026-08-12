@@ -1,0 +1,189 @@
+<% const links = theme.links || {}; %>
+<% const application = links.application || {}; %>
+<% const publicList = links.public_list || {}; %>
+<% const applicationConditions = Array.isArray(application.conditions) ? application.conditions.filter(Boolean) : []; %>
+<% const siteInfo = links.site_info || {}; %>
+<% const profileAvatar = theme.profile && theme.profile.avatar ? theme.profile.avatar : ''; %>
+<% const siteIntroDesc = (theme.profile && theme.profile.bio) || (theme.home && theme.home.subtitle) || ''; %>
+<% const siteUrl = config.url || ''; %>
+<% const siteName = theme.site_name || config.title || '本站'; %>
+<% const siteInfoData = { name: siteName, url: siteUrl, avatar: profileAvatar, description: siteIntroDesc }; %>
+<% const siteInfoJson = JSON.stringify(siteInfoData, null, 2); %>
+<% const siteInfoYaml = `name: ${JSON.stringify(siteName)}\nurl: ${JSON.stringify(siteUrl)}\navatar: ${JSON.stringify(profileAvatar)}\ndescription: ${JSON.stringify(siteIntroDesc)}`; %>
+<% const defaultConditions = [`我已添加 **${siteName}** 的友情链接。`, '我的网站现在可以在中国大陆区域正常访问。', '网站内容符合中国大陆法律法规。', '我的链接主体为**个人**，网站类型为**博客**。', '网站域名不是 us.kg 等免费域名（github.io、gitee.io 除外）。']; %>
+<% const renderConditionText = text => String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>'); %>
+<% const showApplication = application.enable !== false; %>
+<% const showPublicList = publicList.enable !== false; %>
+<% const formFields = [
+  { name: 'name', label: '站点名称', type: 'text', required: true, maxlength: 120, placeholder: '例如：纸上微光', autocomplete: 'organization' },
+  { name: 'url', label: '站点地址', type: 'url', required: true, maxlength: 2048, placeholder: 'https://example.com', autocomplete: 'url' },
+  { name: 'description', label: '站点描述', type: 'textarea', required: false, maxlength: 500, placeholder: '用一两句话介绍你的博客和正在记录的内容。', wide: true },
+  { name: 'avatar', label: '头像地址', type: 'url', required: true, maxlength: 2048, placeholder: 'https://example.com/avatar.png', autocomplete: 'url' },
+  { name: 'friendslink', label: '友链页面', type: 'url', required: true, maxlength: 2048, placeholder: 'https://example.com/link/', autocomplete: 'url' },
+  { name: 'siteshot', label: '站点截图', type: 'url', required: false, maxlength: 2048, placeholder: 'https://example.com/screenshot.png', autocomplete: 'url' },
+  { name: 'feeds', label: 'RSS 订阅', type: 'url', required: false, maxlength: 2048, placeholder: 'https://example.com/atom.xml', autocomplete: 'url' },
+  { name: 'email', label: '联系邮箱', type: 'email', required: false, maxlength: 254, placeholder: 'you@example.com', autocomplete: 'email', wide: true, note: '填写后，审核结果将发送到这个邮箱。' },
+]; %>
+<% function renderSubmissionForm(type) { %>
+  <% const isUpdate = type === 'update'; %>
+  <% const prefix = `friendlink-${type}`; %>
+  <form id="<%= prefix %>-form" class="friendlink-form" data-friendlink-form data-submission-type="<%= type %>" aria-labelledby="<%= prefix %>-form-title" hidden>
+    <h3 class="friendlink-form__title" id="<%= prefix %>-form-title" tabindex="-1"><%= isUpdate ? '更新已有友链信息' : '申请友链' %></h3>
+    <% if (isUpdate) { %>
+      <p class="friendlink-form__intro">请填写审核通过的原站点地址，以及需要替换的完整新资料。</p>
+    <% } %>
+    <div class="friendlink-form__grid">
+      <% if (isUpdate) { %>
+        <div class="friendlink-field friendlink-field--wide friendlink-field--original">
+          <label for="<%= prefix %>-original-url">原站点地址 <span aria-hidden="true">*</span></label>
+          <input id="<%= prefix %>-original-url" name="originalUrl" type="url" inputmode="url" autocomplete="url" required aria-required="true" maxlength="2048" placeholder="审核通过的原站点地址，例如：https://example.com">
+          <span class="friendlink-field__note">用于定位需要更新的已有友链，请与原记录保持一致。</span>
+        </div>
+      <% } %>
+      <% formFields.forEach(field => { %>
+        <% const fieldId = `${prefix}-${field.name}`; %>
+        <div class="friendlink-field<%= field.wide ? ' friendlink-field--wide' : '' %>">
+          <label for="<%= fieldId %>"><%= isUpdate ? `新的${field.label}` : field.label %> <% if (field.required) { %><span aria-hidden="true">*</span><% } else { %><span class="friendlink-field__optional">选填</span><% } %></label>
+          <% if (field.type === 'textarea') { %>
+            <textarea id="<%= fieldId %>" name="<%= field.name %>" rows="3" maxlength="<%= field.maxlength %>" placeholder="<%= isUpdate ? `新的${field.placeholder}` : field.placeholder %>"></textarea>
+          <% } else { %>
+            <input id="<%= fieldId %>" name="<%= field.name %>" type="<%= field.type %>"<% if (['url', 'email'].includes(field.type)) { %> inputmode="<%= field.type %>"<% } %><% if (field.autocomplete) { %> autocomplete="<%= field.autocomplete %>"<% } %><% if (field.required) { %> required aria-required="true"<% } %> maxlength="<%= field.maxlength %>" placeholder="<%= isUpdate ? `新的${field.placeholder}` : field.placeholder %>">
+          <% } %>
+          <% if (field.note) { %><span class="friendlink-field__note"><%= field.note %></span><% } %>
+        </div>
+      <% }); %>
+    </div>
+    <div class="friendlink-form__error" data-friendlink-error role="alert" hidden></div>
+    <div class="friendlink-form__status" data-friendlink-status role="status" aria-live="polite" hidden></div>
+    <div class="friendlink-form__actions">
+      <p><%= isUpdate ? '更新请求同样需要审核；提交前请确认原站点地址和所有新资料均可公开访问。' : '提交前请再次确认：友链页面已放入本站链接，且上述地址可公开访问。' %></p>
+      <button class="friendlink-form__submit" type="submit" data-friendlink-submit><%= isUpdate ? '提交更新' : '投递申请' %></button>
+    </div>
+  </form>
+<% } %>
+<section class="page-shell page-shell--links" aria-labelledby="links-title" data-links-root>
+  <div class="page-heading page-heading--links">
+    <span class="section-kicker"><%= links.eyebrow || 'FRIENDS / 友链' %></span>
+    <h1 id="links-title"><%= page.title || links.title || '友链' %></h1>
+    <p><%= links.description || '在互联网的星河里，记录那些常来常往、彼此照亮的朋友们。' %></p>
+    <div class="links-summary" data-links-summary aria-live="polite"></div>
+  </div>
+  <div class="links-toolbar" data-links-toolbar hidden>
+    <span class="links-toolbar__message" data-links-message></span>
+    <button class="paper-retry" type="button" data-links-retry>重新加载</button>
+  </div>
+  <div class="links-status" data-links-status role="status" aria-live="polite">
+    正在翻开友链这一页……
+  </div>
+  <div class="links-groups" data-links-groups></div>
+
+  <% if (showApplication) { %>
+    <section class="friendlink-application" aria-labelledby="friendlink-application-title" aria-describedby="friendlink-application-description" data-friendlink-form-root data-endpoint="<%= application.endpoint || '' %>">
+      <div class="friendlink-application__tape" aria-hidden="true"></div>
+      <% if (siteInfo.enable !== false) { %>
+      <div class="site-intro" aria-labelledby="site-intro-title">
+        <div class="site-intro__tape" aria-hidden="true"></div>
+        <div class="site-intro__head">
+          <div class="site-intro__avatar">
+            <% if (profileAvatar) { %>
+              <img src="<%= profileAvatar %>" alt="<%= siteName %>的头像" loading="lazy">
+            <% } else { %>
+              <span class="site-intro__avatar__fallback"><%= siteName.slice(0, 1) %></span>
+            <% } %>
+          </div>
+          <div class="site-intro__info">
+            <span class="site-intro__kicker"><%= siteInfo.title || '本站信息' %></span>
+            <h3 id="site-intro-title"><%= siteName %></h3>
+            <% if (siteIntroDesc) { %><p class="site-intro__desc"><%= siteIntroDesc %></p><% } %>
+            <a class="site-intro__link" href="<%= siteUrl %>" target="_blank" rel="noopener">
+              <span class="site-intro__link__domain"><%= siteUrl %></span>
+              <%- paper_moments_icon('external-link', { size: '14', cls: 'site-intro__link__icon' }) %>
+            </a>
+          </div>
+          <div class="site-intro__shot">
+            <% if (siteInfo.screenshot) { %>
+              <img src="<%= siteInfo.screenshot %>" alt="<%= siteName %>的网站截图" loading="lazy">
+            <% } else { %>
+              <span class="site-intro__shot__fallback"><%= siteName %></span>
+            <% } %>
+          </div>
+        </div>
+        <div class="site-intro__code" data-site-intro-code>
+          <div class="site-intro__code__bar">
+            <span class="site-intro__code__label">站点信息</span>
+            <div class="site-intro__code__tabs" role="tablist" aria-label="选择站点信息格式" data-site-code-tabs>
+              <button class="site-intro__code__tab" type="button" role="tab" aria-selected="true" data-site-code-format="json" aria-controls="site-intro-code-json">JSON</button>
+              <button class="site-intro__code__tab" type="button" role="tab" aria-selected="false" data-site-code-format="yaml" aria-controls="site-intro-code-yaml">YAML</button>
+            </div>
+            <button class="site-intro__code__copy" type="button" data-site-code-copy>
+              <%- paper_moments_icon('copy', { size: '15', cls: 'site-intro__code__copy__icon' }) %>
+              <span data-site-code-copy-label>复制</span>
+            </button>
+          </div>
+          <pre class="site-intro__code__pre"><code id="site-intro-code-json" class="language-json" role="tabpanel" data-site-code-content="json"><%= siteInfoJson %></code><code id="site-intro-code-yaml" class="language-yaml" role="tabpanel" data-site-code-content="yaml" hidden><%= siteInfoYaml %></code></pre>
+        </div>
+      </div>
+      <% } %>
+      <header class="friendlink-application__heading">
+        <span class="section-kicker"><%= application.eyebrow || 'APPLY / 友链申请' %></span>
+        <h2 id="friendlink-application-title"><%= application.title || '留一张你的名片' %></h2>
+        <p id="friendlink-application-description"><%= application.description || '确认申请条件后，填写站点信息；审核结果会发送到你填写的邮箱。' %></p>
+      </header>
+      <noscript><p class="friendlink-application__noscript">需要启用 JavaScript 才能申请或更新友链。</p></noscript>
+      <div class="friendlink-application__unavailable" data-friendlink-unavailable role="status" hidden></div>
+      <fieldset class="friendlink-conditions" data-friendlink-conditions>
+        <legend><%= application.conditions_title || '申请前的小确认' %></legend>
+        <p class="friendlink-conditions__hint" data-friendlink-condition-hint role="status" aria-live="polite">请先勾选所有确认项，再选择申请或更新。</p>
+        <div class="friendlink-conditions__list">
+          <% (applicationConditions.length ? applicationConditions : defaultConditions).forEach((condition, index) => { %>
+            <% const conditionId = `friendlink-condition-${index + 1}`; %>
+            <label class="friendlink-condition" for="<%= conditionId %>"><input id="<%= conditionId %>" type="checkbox" data-friendlink-condition><span><%- renderConditionText(condition) %></span></label>
+          <% }); %>
+        </div>
+      </fieldset>
+      <div class="friendlink-mode-switch" data-friendlink-modes hidden role="group" aria-label="选择友链操作">
+        <p>选择要投递的内容</p>
+        <div class="friendlink-mode-switch__buttons">
+          <button class="friendlink-mode-switch__button" type="button" data-friendlink-mode="apply" aria-pressed="false" aria-controls="friendlink-apply-form"><%= application.apply_label || '申请友链' %></button>
+          <button class="friendlink-mode-switch__button" type="button" data-friendlink-mode="update" aria-pressed="false" aria-controls="friendlink-update-form"><%= application.update_label || '更新友链信息' %></button>
+        </div>
+      </div>
+      <% renderSubmissionForm('apply'); %>
+      <% renderSubmissionForm('update'); %>
+    </section>
+  <% } %>
+
+  <% if (showPublicList) { %>
+    <section class="friendlink-status" aria-labelledby="friendlink-status-title" aria-describedby="friendlink-status-description" data-friendlink-status-root data-endpoint="<%= publicList.endpoint || '' %>" data-page-size="<%= publicList.page_size || 12 %>">
+      <div class="friendlink-status__tape" aria-hidden="true"></div>
+      <header class="friendlink-status__heading">
+        <span class="section-kicker"><%= publicList.eyebrow || 'RECORDS / 申请记录' %></span>
+        <h2 id="friendlink-status-title"><%= publicList.title || '友链申请册' %></h2>
+        <p id="friendlink-status-description"><%= publicList.description || '记录公开可见的友链申请与更新状态。' %></p>
+      </header>
+      <noscript><p class="friendlink-status__noscript">需要启用 JavaScript 才能读取公开申请记录。</p></noscript>
+      <div class="friendlink-status__unavailable" data-friendlink-status-unavailable role="status" hidden></div>
+      <div class="friendlink-status__tools">
+        <label class="friendlink-status__filter-label" for="friendlink-status-filter">状态
+          <select id="friendlink-status-filter" data-friendlink-status-filter>
+            <option value="">全部状态</option>
+            <option value="pending">待审核</option>
+            <option value="approved">已通过</option>
+            <option value="rejected">未通过</option>
+          </select>
+        </label>
+        <label class="friendlink-status__search-label" for="friendlink-status-search">搜索名称
+          <input id="friendlink-status-search" data-friendlink-status-search type="search" maxlength="120" autocomplete="off" placeholder="输入站点名称">
+        </label>
+        <button class="friendlink-status__clear" type="button" data-friendlink-status-clear hidden>清除搜索</button>
+        <span class="friendlink-status__count" data-friendlink-status-count aria-live="polite"></span>
+      </div>
+      <div class="friendlink-status__message" data-friendlink-status-message role="status" aria-live="polite">正在翻开申请记录……</div>
+      <ul class="friendlink-status__grid" data-friendlink-status-grid></ul>
+      <div class="friendlink-status__footer">
+        <button class="paper-retry" type="button" data-friendlink-status-retry hidden>重新加载</button>
+        <nav class="friendlink-status__pagination" data-friendlink-status-pagination aria-label="友链申请分页"></nav>
+      </div>
+    </section>
+  <% } %>
+</section>

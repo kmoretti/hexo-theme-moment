@@ -1,0 +1,28 @@
+<% const fcircle = theme.fcircle || {}; %>
+<% const configuredPageSize = Number.parseInt(fcircle.page_size, 10); %>
+<% const pageSize = Number.isFinite(configuredPageSize) && configuredPageSize > 0 ? Math.min(configuredPageSize, 100) : 20; %>
+<% const dataUrl = String(fcircle.data_url || '').trim(); %>
+<section class="page-shell page-shell--fcircle" aria-labelledby="fcircle-title" data-fcircle-root data-fcircle-url="<%= dataUrl %>" data-fcircle-page-size="<%= pageSize %>">
+  <div class="page-heading page-heading--fcircle">
+    <span class="section-kicker"><%= fcircle.eyebrow || 'FRIENDS CIRCLE / 朋友圈' %></span>
+    <h1 id="fcircle-title"><%= page.title || fcircle.title || '朋友圈' %></h1>
+    <p><%= fcircle.description || '把友邻们最近写下的文字，收进这一页手账。' %></p>
+  </div>
+
+  <div class="fcircle-toolbar" data-fcircle-toolbar hidden>
+    <div class="fcircle-summary" data-fcircle-summary aria-live="polite">
+      <span class="fcircle-summary__item" data-fcircle-stat="friends"></span>
+      <span class="fcircle-summary__item" data-fcircle-stat="active"></span>
+      <span class="fcircle-summary__item" data-fcircle-stat="articles"></span>
+      <span class="fcircle-summary__item" data-fcircle-stat="updated"></span>
+    </div>
+    <button class="paper-retry" type="button" data-fcircle-retry hidden><%= fcircle.retry_label || '重新加载' %></button>
+  </div>
+
+  <div class="fcircle-state" data-fcircle-state role="status" aria-live="polite">
+    <%= fcircle.loading_label || '正在翻阅友邻们的新文章……' %>
+  </div>
+  <ul class="fcircle-list" data-fcircle-list aria-live="polite"></ul>
+  <button class="fcircle-more" type="button" data-fcircle-more hidden><%= fcircle.load_more_label || '再翻几页' %></button>
+  <noscript><p class="fcircle-noscript">需要启用 JavaScript 才能加载朋友圈文章。</p></noscript>
+</section>

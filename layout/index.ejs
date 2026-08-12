@@ -1,0 +1,83 @@
+<% const profile = theme.profile || {}; %>
+<% const home = theme.home || {}; %>
+<section class="home-page" aria-labelledby="home-title">
+  <div class="home-page__paper paper-surface">
+    <span class="paper-tape paper-tape--top" aria-hidden="true"></span>
+    <div class="home-page__eyebrow"><%= home.eyebrow || 'PERSONAL NOTES / 个人手账' %></div>
+    <div class="home-page__profile">
+      <div class="avatar-frame">
+        <img src="<%= profile.avatar %>" alt="<%= profile.name %>的头像" width="144" height="144">
+      </div>
+      <div class="home-page__copy">
+        <p class="home-page__role"><%= profile.role || '日常记录者' %></p>
+        <h1 id="home-title"><%= home.title || '把日子，慢慢写下来。' %></h1>
+        <p class="home-page__subtitle"><%= home.subtitle || '' %></p>
+      </div>
+    </div>
+    <p class="home-page__bio"><%= profile.bio || '' %></p>
+    <div class="home-page__actions">
+      <a class="paper-button paper-button--primary" href="<%= url_for(home.enter_url || '/shuoshuo/') %>">
+        <span><%= home.enter_label || '去看说说' %></span>
+        <%- paper_moments_icon('arrow-right', { size: '17', cls: 'paper-button__icon' }) %>
+      </a>
+      <span class="home-page__note" aria-hidden="true">今天也要好好生活。</span>
+    </div>
+    <% if (theme.social_links && theme.social_links.length) { %>
+      <nav class="social-links" aria-label="社交链接">
+        <% theme.social_links.forEach((link) => { %>
+          <a href="<%= link.url %>" target="_blank" rel="noopener noreferrer" aria-label="<%= link.label || link.name %>">
+            <span class="social-links__icon" aria-hidden="true"><%- paper_moments_social_icon(link.icon || link.name || 'external-link', { size: '17' }) %></span>
+            <span><%= link.name %></span>
+          </a>
+        <% }); %>
+      </nav>
+    <% } %>
+    <% if (theme.live_dashboard && theme.live_dashboard.enable !== false && theme.live_dashboard.url) { %>
+      <section class="live-panel" aria-labelledby="live-panel-title" data-live-panel>
+        <div class="live-panel__head">
+          <div class="live-panel__head__text">
+            <span class="live-panel__eyebrow"><%= theme.live_dashboard.eyebrow || 'LIVE / 实时状态' %></span>
+            <h2 id="live-panel-title" class="live-panel__title"><%= theme.live_dashboard.title || '正在做什么' %></h2>
+            <% if (theme.live_dashboard.description) { %><p class="live-panel__desc"><%= theme.live_dashboard.description %></p><% } %>
+          </div>
+          <a class="live-panel__open" href="<%= theme.live_dashboard.url %>" target="_blank" rel="noopener">
+            <span><%= theme.live_dashboard.open_label || '在新窗口查看完整版' %></span>
+            <%- paper_moments_icon('external-link', { size: '14', cls: 'live-panel__open__icon' }) %>
+          </a>
+        </div>
+        <div class="live-panel__body" data-live-body>
+          <div class="live-panel__loading" aria-hidden="false" data-live-loading>
+            <span class="live-panel__loading__dots" aria-hidden="true"><span></span><span></span><span></span></span>
+            <span><%= theme.live_dashboard.loading_label || '正在连接实时面板…' %></span>
+          </div>
+          <div class="live-panel__content" hidden data-live-content>
+            <div class="live-panel__devices" data-live-devices></div>
+            <% if (theme.live_dashboard.show_activities !== false) { %>
+              <div class="live-panel__activities" data-live-activities>
+                <h3 class="live-panel__activities__title">最近动态</h3>
+                <ol class="live-panel__activities__list" data-live-activities-list></ol>
+              </div>
+            <% } %>
+            <% if (theme.live_dashboard.show_viewers !== false) { %>
+              <p class="live-panel__viewers" data-live-viewers></p>
+            <% } %>
+          </div>
+        </div>
+        <div class="live-panel__fallback" hidden data-live-fallback>
+          <p class="live-panel__fallback__text"><%= theme.live_dashboard.error_label || '实时状态暂时无法加载。' %></p>
+          <div class="live-panel__fallback__actions">
+            <a class="paper-button" href="<%= theme.live_dashboard.url %>" target="_blank" rel="noopener">
+              <span><%= theme.live_dashboard.open_label || '在新窗口查看完整版' %></span>
+              <%- paper_moments_icon('external-link', { size: '15', cls: 'paper-button__icon' }) %>
+            </a>
+            <button class="paper-button" type="button" data-live-retry>
+              <span><%= theme.live_dashboard.retry_label || '重新加载' %></span>
+            </button>
+          </div>
+        </div>
+      </section>
+    <% } %>
+    <span class="paper-sticker paper-sticker--bottom" aria-hidden="true">keep<br>notes</span>
+  </div>
+  <p class="home-page__footnote">一张纸，一点时间，和一些没有被忘记的事。</p>
+</section>

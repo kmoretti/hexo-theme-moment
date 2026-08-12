@@ -1,0 +1,23 @@
+<% const isShuoshuo = String(page.content || '').includes('data-bb-channel-root'); %>
+<% const isPlaceholder = page.page_type === 'placeholder'; %>
+<% if (isShuoshuo) { %>
+  <section class="page-shell page-shell--shuoshuo" aria-labelledby="shuoshuo-title">
+    <div class="page-heading page-heading--moments">
+      <span class="section-kicker">A SMALL LOG OF LIFE</span>
+      <h1 id="shuoshuo-title"><%= page.title || '说说' %></h1>
+      <p>把正在发生的事，贴在今天这一页。</p>
+    </div>
+    <div class="shuoshuo-content"><%- page.content %></div>
+    <%- partial('_partial/twikoo') %>
+  </section>
+<% } else { %>
+  <section class="page-shell<%= isPlaceholder ? ' page-shell--placeholder' : '' %>" aria-labelledby="page-title">
+    <div class="page-heading">
+      <span class="section-kicker"><%= isPlaceholder ? 'COMING SOON / 稍后见' : 'PAPER ARCHIVE' %></span>
+      <h1 id="page-title"><%= page.title || '页面' %></h1>
+    </div>
+    <div class="page-content<%= isPlaceholder ? ' page-content--placeholder' : '' %>">
+      <%- page.content %>
+    </div>
+  </section>
+<% } %>

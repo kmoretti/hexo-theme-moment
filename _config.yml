@@ -1,0 +1,208 @@
+site_name: 纸间日常
+site_mark: PM
+
+profile:
+  name: 站点作者
+  avatar: https://api.dicebear.com/9.x/notionists/svg?seed=paper-moments
+  role: 日常记录者
+  bio: 记录正在发生的小事，也收藏那些不想忘记的瞬间。
+
+home:
+  eyebrow: PERSONAL NOTES / 个人手账
+  title: 把日子，慢慢写下来。
+  subtitle: 一页一页，收集生活里微小但确实存在的光。
+  enter_label: 去看说说
+  enter_url: /shuoshuo/
+
+navigation:
+  - name: 首页
+    path: /
+    icon: home
+  - name: 说说
+    path: /shuoshuo/
+    icon: note
+  - name: 相册
+    path: /gallery/
+    icon: images
+  - name: 留言板
+    path: /comment/
+    icon: message-circle
+  - name: 友人
+    icon: link
+    children:
+      - name: 友链
+        path: /link/
+        icon: link
+      - name: 朋友圈
+        path: /fcircle/
+        icon: book
+  - name: 关于
+    path: /about/
+    icon: user
+
+social_links: []
+
+gallery:
+  title: 相册
+  eyebrow: PHOTO ALBUM / 相册
+  album_eyebrow: PHOTO NOTES / 画面手账
+  description: 把值得留下的画面，贴进这一页；等有空，再慢慢翻看。
+  # 相册顺序由 albums 列表决定。本地媒体建议放在 source/gallery/media/<slug>/。
+  albums: []
+
+fcircle:
+  title: 朋友圈
+  eyebrow: FRIENDS CIRCLE / 朋友圈
+  description: 把友邻们最近写下的文字，收进这一页手账。
+  data_url: https://fc.081531.xyz/all.json
+  page_size: 20
+  loading_label: 正在翻阅友邻们的新文章……
+  empty_label: 最近还没有收到友邻的新文章。
+  error_label: 朋友圈暂时无法加载，请检查网络后重试。
+  retry_label: 重新加载
+  load_more_label: 再翻几页
+
+links:
+  title: 友链
+  eyebrow: FRIENDS / 友链
+  description: 在互联网的星河里，记录那些常来常往、彼此照亮的朋友们。
+  data_url: https://cdn.jsdmirror.com/gh/kmoretti/hexo-blog-source@main/source/_data/links.yml
+  latency_url: https://fc.081531.xyz/link.json
+  application:
+    enable: true
+    endpoint: https://verify.081531.xyz/api/submissions
+    eyebrow: APPLY / 友链申请
+    title: 留一张你的名片
+    description: 确认申请条件后，填写站点信息；审核结果会发送到你填写的邮箱。
+    conditions_title: 申请前的小确认
+    apply_label: 申请友链
+    update_label: 更新友链信息
+  public_list:
+    enable: true
+    endpoint: https://verify.081531.xyz/api/submissions
+    eyebrow: RECORDS / 申请记录
+    title: 友链申请册
+    description: 记录公开可见的友链申请与更新状态。
+    page_size: 12
+
+footer:
+  text: 愿每一次落笔，都离喜欢的生活近一点。
+  start_year: 2026
+
+shuoshuo:
+  author_label: 站点作者
+  source_label: 查看原文
+  comment_label: 评论这条
+  loading_label: 正在收集最新的便签……
+  empty_label: 还没有公开说说
+  error_label: 暂时无法加载说说，请稍后重试
+  retry_label: 重新加载
+
+comments:
+  enable: true
+  provider: twikoo
+  twikoo_version: 1.7.15
+  path: /shuoshuo/
+  unconfigured_label: 评论区尚未配置，填入 Twikoo 环境地址后即可使用。
+  quote_hint: 引用已准备好，可以继续编辑后发布。
+
+comment_board:
+  enable: true
+  path: /comment/
+  eyebrow: GUESTBOOK / 留言板
+  title: 留一页话给我
+  description: 想说的话，都会被好好收进这本手账。
+  letter_title: "✨来自站点作者的留言:"
+  letter_lines:
+    - 本站有哪些做得好或者不好的地方？
+    - 或者你有什么改进的建议？
+    - 又或者你有什么具体的问题需要咨询？
+    - 都可以在下方评论区留言哦~~~
+  letter_footer: 小站站长亲自为您服务！
+  envelope:
+    wrap_height: 447
+    open_height: 1050
+    open_offset: -200
+    danmaku_open_bottom_trim: 140
+  open_label: 打开这封便签
+  close_label: 收起这封便签
+  toggle_label: 切换便签展开状态
+  comments_title: 写下你的话
+  comments_kicker: MESSAGE BOOK / 留言簿
+  danmaku:
+    enable: true
+    desktop_only: true
+    page_size: 50
+    include_replies: true
+    max_text_length: 42
+    lane_count: 4
+    min_speed: 54
+    max_speed: 82
+    gap: 22
+    interval_ms: 760
+    pause_label: 暂停弹幕
+    resume_label: 继续弹幕
+    reduced_motion_label: 已按系统设置减少动态效果
+    offline_label: 离线时不播放留言弹幕。
+    empty_label: 还没有可飘过的留言，等你的第一句。
+    unavailable_label: 留言弹幕暂时无法加载。
+
+reactions:
+  enable: true
+  endpoint: https://api-emaction.081531.xyz
+  storage_key: paper-moments-reactions
+  available:
+    - emoji: 👍
+      name: thumbs-up
+      label: 赞
+    - emoji: ❤️
+      name: red-heart
+      label: 喜欢
+    - emoji: 😄
+      name: smile-face
+      label: 开心
+    - emoji: 🎉
+      name: party-popper
+      label: 庆祝
+    - emoji: 👀
+      name: eyes
+      label: 看过
+  get_path: /reactions
+  toggle_path: /reaction
+
+appearance:
+  default_mode: system
+  theme_storage_key: paper-moments-theme
+  accent_hue: 136
+  accent_storage_key: paper-moments-accent
+
+pjax:
+  enable: true
+  exclude: []
+
+pwa:
+  enable: true
+  manifest: /manifest.json
+  theme_color: '#6f9274'
+  background_color: '#f4efe4'
+  apple_touch_icon: /icons/icon-180.png
+  icon_192: /icons/icon-192.png
+  icon_512: /icons/icon-512.png
+  icon_maskable_512: /icons/icon-maskable-512.png
+
+# 左下角音乐播放器（参考 wxuyu.top 左侧导航栏形态）。
+# 歌曲的 url/cover/lrc 可为本地路径（source/music/ 下）或远程 URL；站点配置覆盖本默认值。
+music:
+  enable: true
+  title_label: 正在播放
+  play_label: 播放
+  pause_label: 暂停
+  prev_label: 上一首
+  next_label: 下一首
+  lyrics_label: 歌词
+  volume_label: 音量
+  close_label: 收起播放器
+  open_label: 打开音乐播放器
+  empty_label: 暂无歌曲
+  no_lyrics_label: 暂无歌词
+  playlist: []

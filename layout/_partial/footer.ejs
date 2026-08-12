@@ -1,0 +1,6 @@
+<% const startYear = theme.footer && theme.footer.start_year; %>
+<footer class="site-footer">
+  <div class="site-footer__rule" aria-hidden="true"></div>
+  <p><%= (theme.footer && theme.footer.text) || '愿每一次落笔，都离喜欢的生活近一点。' %></p>
+  <small>© <%= startYear && startYear !== new Date().getFullYear() ? `${startYear}–${new Date().getFullYear()}` : new Date().getFullYear() %> <%= theme.profile.name %></small>
+</footer>

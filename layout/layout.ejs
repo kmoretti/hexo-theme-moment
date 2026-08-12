@@ -1,0 +1,240 @@
+<% const siteTitle = config.title || theme.site_name || '纸间日常'; %>
+<% const pageTitle = page.title ? `${page.title} · ${siteTitle}` : siteTitle; %>
+<% const rootPath = config.root || '/'; %>
+<% const pagePath = String(page.path || '').replace(/^\/+/, ''); %>
+<% const canonicalPath = pagePath === 'index.html' ? '/' : `/${pagePath.replace(/index\.html$/, '')}`; %>
+<% const canonicalUrl = config.url ? config.url.replace(/\/$/, '') + (canonicalPath === '/' ? '' : canonicalPath) : canonicalPath; %>
+<% const isShuoshuoPage = String(page.content || '').includes('data-bb-channel-root'); %>
+<% const isLinksPage = page.layout === 'links' || page.page_type === 'links'; %>
+<% const isFcirclePage = page.layout === 'fcircle' || page.page_type === 'fcircle'; %>
+<% const isAboutPage = page.layout === 'about' || page.page_type === 'about'; %>
+<% const isGalleryPage = page.layout === 'gallery' || String(page.page_type || '').startsWith('gallery-'); %>
+<% const isCommentPage = page.layout === 'comment' || page.page_type === 'comment'; %>
+<% const isHomePage = page.layout === 'index' || page.page_type === 'index'; %>
+<% const twikoo = config.twikoo || {}; %>
+<% const comments = theme.comments || {}; %>
+<% const configuredTwikooVersion = String(comments.twikoo_version || twikoo.version || '1.7.15'); %>
+<% const twikooVersion = /^[0-9]+\.[0-9]+\.[0-9]+$/.test(configuredTwikooVersion) ? configuredTwikooVersion : '1.7.15'; %>
+<% const pwa = theme.pwa || {}; %>
+<% const pwaEnabled = pwa.enable !== false; %>
+<% const pwaThemeColor = pwa.theme_color || '#6f9274'; %>
+<% const appearance = theme.appearance || {}; %>
+<% const appearanceThemeKey = appearance.theme_storage_key || 'paper-moments-theme'; %>
+<% const appearanceAccentKey = appearance.accent_storage_key || 'paper-moments-accent'; %>
+<% const defaultAccentHue = Number.isFinite(Number(appearance.accent_hue)) ? Math.max(0, Math.min(360, Math.round(Number(appearance.accent_hue)))) : 136; %>
+<% const music = theme.music || {}; %>
+<!doctype html>
+<html lang="zh-CN" data-theme="system">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="<%= page.description || theme.home.subtitle || siteTitle %>">
+    <title><%= pageTitle %></title>
+    <link rel="icon" href="<%= url_for('favicon.svg') %>" type="image/svg+xml">
+    <% if (pwaEnabled) { %>
+      <link rel="manifest" href="<%= url_for(pwa.manifest || 'manifest.json') %>">
+      <meta name="theme-color" content="<%= pwaThemeColor %>">
+      <% if (pwa.apple_touch_icon) { %><link rel="apple-touch-icon" href="<%= url_for(pwa.apple_touch_icon) %>"><% } %>
+      <meta name="mobile-web-app-capable" content="yes">
+      <meta name="apple-mobile-web-app-capable" content="yes">
+      <meta name="apple-mobile-web-app-status-bar-style" content="default">
+      <meta name="apple-mobile-web-app-title" content="<%= siteTitle %>">
+    <% } %>
+    <% if ((isShuoshuoPage || isCommentPage) && twikoo.env_id && comments.enable !== false) { %>
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/twikoo@<%= twikooVersion %>/dist/twikoo.css">
+    <% } %>
+    <script>
+      (() => {
+        const key = <%- JSON.stringify(appearanceThemeKey) %>;
+        const accentKey = <%- JSON.stringify(appearanceAccentKey) %>;
+        const defaultAccentHue = <%- JSON.stringify(defaultAccentHue) %>;
+        const choices = new Set(['system', 'light', 'dark']);
+        let saved = 'system';
+        let accentHue = defaultAccentHue;
+        try {
+          const stored = localStorage.getItem(key);
+          if (choices.has(stored)) saved = stored;
+          const storedAccent = Number(localStorage.getItem(accentKey));
+          if (Number.isFinite(storedAccent)) accentHue = Math.max(0, Math.min(360, Math.round(storedAccent)));
+        } catch (_) {
+          // 存储被禁用时仍按系统主题渲染，后续运行时会以内存状态继续工作。
+        }
+        const resolved = saved === 'system'
+          ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+          : saved;
+        document.documentElement.dataset.theme = resolved;
+        document.documentElement.dataset.themeChoice = saved;
+        document.documentElement.style.setProperty('--paper-accent-hue', String(accentHue));
+        document.documentElement.style.colorScheme = resolved;
+      })();
+    </script>
+    <link rel="stylesheet" href="<%= url_for('css/style.css') %>">
+    <script src="<%= url_for('js/bb-guard.js') %>"></script>
+    <script src="<%= url_for('js/icons.js') %>" defer></script>
+    <script src="<%= url_for('js/media-lightbox.js') %>" defer></script>
+    <script src="<%= url_for('js/comments.js') %>" defer></script>
+    <% if (config.url) { %><link rel="canonical" href="<%= canonicalUrl %>"><% } %>
+  </head>
+  <body data-root="<%= rootPath %>">
+    <%- partial('_partial/header') %>
+    <main id="main-content" tabindex="-1">
+      <%- body %>
+    </main>
+    <%- partial('_partial/footer') %>
+    <div class="paper-toast" data-paper-toast role="status" aria-live="polite"></div>
+    <div class="pwa-update-notice" data-pwa-update-notice role="status" aria-live="polite" hidden>
+      <span data-pwa-update-message></span>
+    </div>
+    <button class="back-to-top" type="button" data-back-to-top aria-label="回到顶部" title="回到顶部" hidden>
+      <%- paper_moments_icon('arrow-up', { size: '20', cls: 'back-to-top__icon' }) %>
+      <span class="sr-only">回到顶部</span>
+    </button>
+    <% if (music.enable !== false && music.playlist && music.playlist.length) { %>
+    <div class="music-player" data-music-player>
+      <audio class="music-player__audio" data-music-audio preload="metadata"></audio>
+      <button class="music-player__orb" type="button" data-music-orb aria-label="<%= music.open_label || '打开音乐播放器' %>" title="<%= music.open_label || '打开音乐播放器' %>" aria-expanded="false">
+        <span class="music-player__orb-cover" data-music-orb-cover hidden></span>
+        <%- paper_moments_icon('music-2', { size: '22', cls: 'music-player__orb-icon' }) %>
+        <span class="sr-only"><%= music.open_label || '打开音乐播放器' %></span>
+      </button>
+      <div class="music-player__bar" data-music-bar hidden role="group" aria-label="<%= music.title_label || '音乐播放器' %>">
+        <div class="music-player__bar-cover" data-music-cover role="img" aria-label="<%= music.title_label || '封面' %>"></div>
+        <div class="music-player__bar-info">
+          <p class="music-player__bar-title" data-music-title></p>
+          <p class="music-player__bar-artist" data-music-artist></p>
+          <div class="music-player__bar-progress">
+            <span class="music-player__bar-time" data-music-time>0:00 / 0:00</span>
+            <input class="music-player__bar-range" type="range" min="0" max="1000" step="1" value="0" data-music-range aria-label="<%= music.title_label || '播放进度' %>">
+          </div>
+        </div>
+        <div class="music-player__bar-controls">
+          <button type="button" data-music-prev aria-label="<%= music.prev_label || '上一首' %>" title="<%= music.prev_label || '上一首' %>"><%- paper_moments_icon('skip-back', { size: '18' }) %></button>
+          <button type="button" data-music-toggle aria-label="<%= music.play_label || '播放' %>" title="<%= music.play_label || '播放' %>"><%- paper_moments_icon('play', { size: '20' }) %></button>
+          <button type="button" data-music-next aria-label="<%= music.next_label || '下一首' %>" title="<%= music.next_label || '下一首' %>"><%- paper_moments_icon('skip-forward', { size: '18' }) %></button>
+        </div>
+        <div class="music-player__bar-tools">
+          <button type="button" data-music-volume aria-label="<%= music.volume_label || '音量' %>" title="<%= music.volume_label || '音量' %>"><%- paper_moments_icon('volume', { size: '18' }) %></button>
+          <button type="button" data-music-lyrics aria-label="<%= music.lyrics_label || '歌词' %>" title="<%= music.lyrics_label || '歌词' %>" aria-expanded="false"><%- paper_moments_icon('file-music', { size: '18' }) %></button>
+          <button type="button" data-music-close aria-label="<%= music.close_label || '收起播放器' %>" title="<%= music.close_label || '收起播放器' %>"><%- paper_moments_icon('x', { size: '18' }) %></button>
+        </div>
+      </div>
+      <div class="music-player__lyrics" data-music-lyrics-panel hidden>
+        <div class="music-player__lyrics-head">
+          <p class="music-player__lyrics-title" data-music-lyrics-title></p>
+          <button type="button" data-music-lyrics-close aria-label="<%= music.close_label || '关闭歌词' %>" title="<%= music.close_label || '关闭歌词' %>"><%- paper_moments_icon('x', { size: '18' }) %></button>
+        </div>
+        <div class="music-player__lyrics-scroll" data-music-lyrics-scroll aria-live="polite"></div>
+      </div>
+    </div>
+    <% } %>
+    <!-- PJAX 状态区：每页变化的配置与页面脚本，PJAX 切换时整体替换并自动重执行（MoOx/pjax executeScripts） -->
+    <script>
+      // 页面专属脚本可能早于 pjax.js 的 defer 执行；先建立稳定的清理注册表，避免慢请求在切页后回写。
+      window.paperMomentsPjax = window.paperMomentsPjax || {
+        cleanupFns: [],
+        registerCleanup(fn) {
+          if (typeof fn === 'function') this.cleanupFns.push(fn);
+        },
+        runCleanup() {
+          const fns = this.cleanupFns;
+          this.cleanupFns = [];
+          fns.forEach(fn => { try { fn(); } catch (_) {} });
+        },
+      };
+    </script>
+    <div id="pjax-state">
+      <script>
+        window.paperMomentsConfig = <%- JSON.stringify({
+          profile: theme.profile,
+          shuoshuo: theme.shuoshuo,
+          comments: theme.comments,
+          commentBoard: theme.comment_board,
+          twikoo: {
+            envId: twikoo.env_id || '',
+            lang: twikoo.lang || 'zh-CN',
+            version: twikooVersion,
+          },
+          reactions: theme.reactions,
+          links: theme.links,
+          fcircle: theme.fcircle,
+          about: theme.about,
+          gallery: theme.gallery,
+          pjax: theme.pjax,
+          music: theme.music,
+          live_dashboard: theme.live_dashboard,
+          appearance: {
+            defaultMode: appearance.default_mode || 'system',
+            defaultAccentHue: defaultAccentHue,
+            themeKey: appearanceThemeKey,
+            accentKey: appearanceAccentKey,
+          },
+          themeKey: appearanceThemeKey,
+          accentKey: appearanceAccentKey,
+        }).replace(/</g, '\\u003c') %>;
+      </script>
+      <% if (isLinksPage) { %>
+        <script src="<%= url_for('js/links.js') %>" defer></script>
+        <script src="<%= url_for('js/friendlink-form.js') %>" defer></script>
+        <script src="<%= url_for('js/friendlink-status.js') %>" defer></script>
+        <script src="<%= url_for('js/site-intro.js') %>" defer></script>
+      <% } %>
+      <% if (isHomePage) { %><script src="<%= url_for('js/live-panel.js') %>" defer></script><% } %>
+      <% if (isAboutPage) { %><script src="<%= url_for('js/about.js') %>" defer></script><% } %>
+      <% if (isFcirclePage) { %><script src="<%= url_for('js/fcircle.js') %>" defer></script><% } %>
+      <% if (isGalleryPage) { %><script src="<%= url_for('js/gallery.js') %>" defer></script><% } %>
+      <% if (isCommentPage) { %><script src="<%= url_for('js/comment-board.js') %>" defer></script><% } %>
+      <% if (isShuoshuoPage) { %><script src="<%= url_for('js/shuoshuo.js') %>" defer></script><% } %>
+      <% if (isShuoshuoPage) { %><script src="<%= url_for('js/reactions.js') %>" defer></script><% } %>
+    </div>
+    <script src="<%= url_for('js/theme.js') %>" defer></script>
+    <script src="<%= url_for('js/music-player.js') %>" defer></script>
+    <script src="<%= url_for('js/vendor/pjax.min.js') %>" defer></script>
+    <script src="<%= url_for('js/pjax.js') %>" defer></script>
+    <% if (pwaEnabled) { %>
+      <script>
+        (() => {
+          if (!('serviceWorker' in navigator)) return;
+          // 新版本 SW 激活接管页面时刷新一次，确保拿到最新内容，避免停留在旧缓存。
+          let refreshing = false;
+          const updateNotice = document.querySelector('[data-pwa-update-notice]');
+          const updateMessage = document.querySelector('[data-pwa-update-message]');
+          const showUpdateNotice = message => {
+            if (!updateNotice || !updateMessage) return;
+            updateMessage.textContent = message;
+            updateNotice.hidden = false;
+          };
+          const hideUpdateNotice = () => {
+            if (updateNotice) updateNotice.hidden = true;
+          };
+
+          navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (refreshing) return;
+            refreshing = true;
+            showUpdateNotice('网站已更新，正在刷新……');
+            window.setTimeout(() => window.location.reload(), 240);
+          });
+          const register = () => {
+            navigator.serviceWorker.register(<%- JSON.stringify(url_for('service-worker.js')).replace(/</g, '\\u003c') %>, { scope: <%- JSON.stringify(config.root || '/') %> }).then(registration => {
+              const watchWorker = worker => {
+                worker.addEventListener('statechange', () => {
+                  if (worker.state === 'installed' && navigator.serviceWorker.controller) {
+                    showUpdateNotice('正在更新网站内容……');
+                  }
+                });
+              };
+
+              if (registration.installing) watchWorker(registration.installing);
+              registration.addEventListener('updatefound', () => {
+                if (registration.installing) watchWorker(registration.installing);
+              });
+              registration.update();
+            }).catch(() => {});
+          };
+          if (document.readyState === 'complete') register();
+          else window.addEventListener('load', register);
+          window.addEventListener('pageshow', hideUpdateNotice, { once: true });
+        })();
+      </script>
+    <% } %>
+  </body>
+</html>

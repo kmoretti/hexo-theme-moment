@@ -1,0 +1,125 @@
+<%
+const gallery = theme.gallery || {};
+const isAlbumPage = page.page_type === 'gallery-album' && page.gallery_album;
+const album = isAlbumPage ? page.gallery_album : null;
+const albums = Array.isArray(gallery.albums) ? gallery.albums : [];
+const localRoot = config.root || '/';
+const resolveUrl = value => {
+  const raw = String(value || '').trim();
+  if (!raw) return '';
+  if (/^https:\/\//i.test(raw)) return raw;
+  return url_for(raw.startsWith('/') ? raw : `/${raw.replace(/^\/+/, '')}`);
+};
+const monthInfo = value => {
+  const match = String(value || '').match(/^(\d{4})[-/](\d{1,2})/);
+  if (!match) return { key: 'unknown', label: '未标注日期', order: 0 };
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  if (!year || month < 1 || month > 12) return { key: 'unknown', label: '未标注日期', order: 0 };
+  return { key: `${year}-${String(month).padStart(2, '0')}`, label: `${year} 年 ${month} 月`, order: year * 100 + month };
+};
+const cardDate = value => {
+  const normalized = value instanceof Date && !Number.isNaN(value.getTime())
+    ? value.toISOString().slice(0, 10)
+    : String(value || '');
+  const match = normalized.match(/^(\d{4})(?:[-/](\d{1,2})(?:[-/](\d{1,2}))?)?/);
+  if (!match) return '未标注日期';
+  return [`${match[1]} 年`, match[2] && `${Number(match[2])} 月`, match[3] && `${Number(match[3])} 日`].filter(Boolean).join(' ');
+};
+const mediaItems = Array.isArray(album?.items) ? album.items : [];
+const groups = mediaItems.reduce((all, item) => {
+  const info = monthInfo(item.date);
+  const existing = all.get(info.key) || { ...info, items: [] };
+  existing.items.push(item);
+  all.set(info.key, existing);
+  return all;
+}, new Map());
+const monthGroups = [...groups.values()].sort((left, right) => right.order - left.order);
+const publicAlbum = album?.access !== 'password';
+const galleryJson = isAlbumPage ? JSON.stringify({
+  album: { slug: album.slug, title: album.title, access: album.access, passwordHash: album.password_hash || '', items: mediaItems }
+}).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026') : '';
+%>
+<section class="gallery-page page-shell" data-gallery-page data-gallery-kind="<%= isAlbumPage ? 'album' : 'index' %>">
+  <% if (!isAlbumPage) { %>
+    <header class="page-heading gallery-heading">
+      <span class="section-kicker"><%= gallery.eyebrow || 'PHOTO ALBUM / 相册' %></span>
+      <h1><%= gallery.title || '相册' %></h1>
+      <p><%= gallery.description || '把值得留下的画面，贴进这一页。' %></p>
+    </header>
+    <% if (albums.length) { %>
+      <div class="gallery-album-grid" aria-label="相册列表">
+        <% albums.forEach((item) => { const items = Array.isArray(item.items) ? item.items : []; const stack = [item.cover || items[0]?.poster || items[0]?.url, ...items.map(media => media.poster || media.url)].filter(Boolean).filter((value, index, list) => list.indexOf(value) === index).slice(0, 3); const locked = item.access === 'password'; %>
+          <a class="gallery-album-card" href="<%= url_for(`/gallery/${item.slug}/`) %>">
+            <span class="gallery-album-card__stack" aria-hidden="true">
+              <% if (stack.length) { %>
+                <% stack.reverse().forEach((source, index) => { %><img class="gallery-album-card__photo gallery-album-card__photo--<%= index + 1 %>" src="<%= resolveUrl(source) %>" alt="" loading="lazy" decoding="async"><% }); %>
+              <% } else { %>
+                <span class="gallery-album-card__empty"><%- paper_moments_icon('image', { size: '29' }) %></span>
+              <% } %>
+              <span class="gallery-album-card__tape"></span>
+            </span>
+            <span class="gallery-album-card__copy">
+              <span class="gallery-album-card__title"><%= item.title || item.slug %></span>
+              <% if (item.description) { %><span class="gallery-album-card__description"><%= item.description %></span><% } %>
+              <span class="gallery-album-card__meta"><%= cardDate(item.date) %><i aria-hidden="true"></i><%= items.length %> 项</span>
+            </span>
+            <span class="gallery-album-card__access<%= locked ? ' is-locked' : '' %>">
+              <%- paper_moments_icon(locked ? 'lock-keyhole' : 'lock-keyhole-open', { size: '14', cls: 'gallery-album-card__access-icon' }) %>
+              <span><%= locked ? '需要密码' : '公开' %></span>
+            </span>
+          </a>
+        <% }); %>
+      </div>
+    <% } else { %>
+      <div class="gallery-empty-state paper-surface"><%- paper_moments_icon('image', { size: '31', cls: 'gallery-empty-state__icon' }) %><p>相册还在整理。去主题配置的 <code>gallery.albums</code> 放入第一组照片吧。</p></div>
+    <% } %>
+  <% } else { %>
+    <header class="gallery-album-heading">
+      <a class="gallery-back-link" href="<%= url_for('/gallery/') %>"><%- paper_moments_icon('chevron-left', { size: '17', cls: 'gallery-back-link__icon' }) %>返回相册</a>
+      <% if (album.cover) { %><img class="gallery-album-heading__cover" src="<%= resolveUrl(album.cover) %>" alt="" loading="eager" decoding="async"><% } %>
+      <span class="section-kicker"><%= gallery.album_eyebrow || 'PHOTO NOTES / 画面手账' %></span>
+      <h1><%= album.title %></h1>
+      <% if (album.description) { %><p><%= album.description %></p><% } %>
+      <div class="gallery-album-heading__meta"><span><%- paper_moments_icon('images', { size: '16' }) %><%= mediaItems.length %> 项媒体</span><span class="gallery-album-heading__access<%= !publicAlbum ? ' is-locked' : '' %>"><%- paper_moments_icon(publicAlbum ? 'lock-keyhole-open' : 'lock-keyhole', { size: '15' }) %><%= publicAlbum ? '公开相册' : '需要密码' %></span></div>
+    </header>
+    <% if (album.source_attribution) { %>
+      <p class="gallery-source-note"><%- paper_moments_icon('external-link', { size: '15', cls: 'gallery-source-note__icon' }) %><span><%= album.source_attribution.notice || '样例媒体来源：' %><a href="<%= album.source_attribution.url %>" target="_blank" rel="noopener noreferrer"><%= album.source_attribution.name %></a></span></p>
+    <% } %>
+    <% if (!publicAlbum) { %>
+      <section class="gallery-password-gate paper-surface" data-gallery-password-gate>
+        <span class="gallery-password-gate__stamp"><%- paper_moments_icon('lock-keyhole', { size: '26' }) %></span>
+        <h2>这一页暂时合上了</h2>
+        <p>输入相册密码后，才能翻看其中的画面。静态站的密码门只用于减少误触，并不是媒体访问控制。</p>
+        <form class="gallery-password-gate__form" data-gallery-password-form>
+          <label class="sr-only" for="gallery-password">相册密码</label>
+          <input id="gallery-password" name="password" type="password" autocomplete="current-password" placeholder="请输入相册密码" required>
+          <button type="submit">打开这一页</button>
+        </form>
+        <p class="gallery-password-gate__status" data-gallery-password-status role="status" aria-live="polite"></p>
+      </section>
+      <div class="gallery-media-groups" data-gallery-protected-media hidden></div>
+    <% } else if (monthGroups.length) { %>
+      <div class="gallery-media-groups" data-gallery-media-groups>
+        <% monthGroups.forEach((group) => { %>
+          <section class="gallery-media-group"><h2><%= group.label %></h2><div class="gallery-media-grid">
+            <% group.items.forEach((item) => { const isVideo = item.type === 'video'; const preview = isVideo ? (item.poster || '') : item.url; %>
+              <button class="gallery-media-card<%= isVideo ? ' is-video' : '' %>" type="button" data-gallery-media-index="<%= item.index %>" aria-label="打开<%= item.alt || (isVideo ? '视频' : '图片') %>">
+                <% if (isVideo) { %>
+                  <% if (preview) { %><img src="<%= resolveUrl(preview) %>" alt="<%= item.alt %>" loading="lazy" decoding="async"><% } else { %><video src="<%= resolveUrl(item.url) %>#t=0.1" muted playsinline preload="metadata" aria-label="<%= item.alt %>"></video><% } %>
+                  <span class="gallery-media-card__play"><%- paper_moments_icon('play', { size: '19' }) %></span>
+                <% } else { %>
+                  <img src="<%= resolveUrl(item.url) %>" alt="<%= item.alt %>" loading="lazy" decoding="async">
+                <% } %>
+                <% if (item.caption) { %><span class="gallery-media-card__caption"><%= item.caption %></span><% } %>
+              </button>
+            <% }); %>
+          </div></section>
+        <% }); %>
+      </div>
+    <% } else { %>
+      <div class="gallery-empty-state paper-surface"><%- paper_moments_icon('image', { size: '31', cls: 'gallery-empty-state__icon' }) %><p>这一册还没有放入媒体。</p></div>
+    <% } %>
+    <script type="application/json" data-gallery-config><%- galleryJson %></script>
+  <% } %>
+</section>
