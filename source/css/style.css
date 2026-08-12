@@ -1419,14 +1419,11 @@ img { max-width: 100%; }
 .about-sponsor-stamp__button:hover .about-sponsor-stamp__tilt,
 .about-sponsor-stamp__button:focus-visible .about-sponsor-stamp__tilt { transform: translateY(-3px) rotate(0); }
 .about-sponsor-stamp__card {
-  --perf: 3.5px;
   position: relative;
   display: block;
   padding: 7px;
   background: var(--paper-sheet);
   filter: drop-shadow(2px 3px 0 var(--paper-bg-deep)) drop-shadow(0 6px 14px rgba(91, 75, 51, .1));
-  -webkit-mask: radial-gradient(var(--perf), #000 96%, transparent) 0 0 / calc(var(--perf) * 2) calc(var(--perf) * 2);
-  mask: radial-gradient(var(--perf), #000 96%, transparent) 0 0 / calc(var(--perf) * 2) calc(var(--perf) * 2);
 }
 .about-sponsor-stamp__avatar {
   display: block;
@@ -1646,13 +1643,10 @@ img { max-width: 100%; }
   text-align: center;
 }
 .about-sponsor-detail__stamp {
-  --perf: 4px;
   display: block;
   padding: 8px;
   background: var(--paper-sheet);
   filter: drop-shadow(3px 4px 0 var(--paper-bg-deep));
-  -webkit-mask: radial-gradient(var(--perf), #000 96%, transparent) 0 0 / calc(var(--perf) * 2) calc(var(--perf) * 2);
-  mask: radial-gradient(var(--perf), #000 96%, transparent) 0 0 / calc(var(--perf) * 2) calc(var(--perf) * 2);
 }
 .about-sponsor-detail__stamp img {
   display: block;
