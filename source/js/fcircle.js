@@ -1,4 +1,4 @@
-(() => {
+window.paperMomentsPage?.registerModule('fcircle', () => {
   const root = document.querySelector('[data-fcircle-root]');
   if (!root) return;
 
@@ -207,11 +207,11 @@
   retry.addEventListener('click', onRetry);
   more.textContent = labels.more;
   retry.textContent = labels.retry;
-  window.paperMomentsPjax?.registerCleanup(() => {
+  window.paperMomentsPage?.registerCleanup(() => {
     destroyed = true;
     controller?.abort();
     more.removeEventListener('click', onMore);
     retry.removeEventListener('click', onRetry);
   });
   load();
-})();
+});

@@ -45,7 +45,7 @@
   };
   const registerCleanup = () => {
     if (state.cleanupRegistered) return;
-    const lifecycle = window.paperMomentsPjax;
+    const lifecycle = window.paperMomentsPage;
     if (!lifecycle?.registerCleanup) return;
     state.cleanupRegistered = true;
     lifecycle.registerCleanup(() => {
@@ -183,13 +183,6 @@
     return Promise.all(scopes.map(mountScope));
   };
 
-  const mountAfterPjax = () => {
-    window.requestAnimationFrame(() => { void mountPage(); });
-  };
-  // comments.js 是全局 defer 模块；不要依赖 PJAX 替换区域里某个页面脚本是否重执行。
-  // 这样从移动端或深层页面返回 /comment/ 时，新的 section 也一定会重新挂载 Twikoo。
-  document.addEventListener('pjax:complete', mountAfterPjax);
-
   window.paperMomentsComments = {
     __paperMomentsCommentsReady: true,
     loadTwikoo,
@@ -198,7 +191,7 @@
     cleanupPage,
     normalizePath,
   };
-  const start = () => { void mountPage(); };
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start, { once: true });
-  else start();
+  window.paperMomentsPage?.registerModule('comments', () => {
+    window.requestAnimationFrame(() => { void mountPage(); });
+  });
 })();

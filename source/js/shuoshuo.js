@@ -1,4 +1,4 @@
-(() => {
+window.paperMomentsPage?.registerModule('shuoshuo', () => {
   const settings = window.paperMomentsConfig || {};
   const moments = settings.shuoshuo || {};
   const profile = settings.profile || {};
@@ -485,15 +485,12 @@
       applyTagFilter();
     };
     window.addEventListener('popstate', onPopstate);
-    if (window.paperMomentsPjax) {
-      window.paperMomentsPjax.registerCleanup(() => {
-        if (activeObserver) activeObserver.disconnect();
-        window.removeEventListener('resize', onResize);
-        window.removeEventListener('popstate', onPopstate);
-      });
-    }
+    window.paperMomentsPage?.registerCleanup(() => {
+      if (activeObserver) activeObserver.disconnect();
+      window.removeEventListener('resize', onResize);
+      window.removeEventListener('popstate', onPopstate);
+    });
   };
   window.paperMomentsShuoshuo = { layoutMasonry, setTagFilter };
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once: true });
-  else boot();
-})();
+  boot();
+});

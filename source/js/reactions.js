@@ -1,4 +1,4 @@
-(() => {
+window.paperMomentsPage?.registerModule('reactions', () => {
   const config = window.paperMomentsConfig?.reactions || {};
   const DEFAULT_CATALOG = [
     { emoji: '👍', name: 'thumbs-up', label: '赞' },
@@ -259,11 +259,8 @@
   };
 
   window.paperMomentsReactions = { adapter, createAdapter };
-  if (window.paperMomentsPjax) {
-    window.paperMomentsPjax.registerCleanup(() => {
-      if (activeObserver) activeObserver.disconnect();
-    });
-  }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once: true });
-  else boot();
-})();
+  window.paperMomentsPage?.registerCleanup(() => {
+    if (activeObserver) activeObserver.disconnect();
+  });
+  boot();
+});

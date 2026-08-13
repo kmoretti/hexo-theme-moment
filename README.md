@@ -46,7 +46,7 @@ pnpm install
 ### 2. 安装主题
 
 ```bash
-pnpm add hexo-bb-channel hexo-offline hexo-renderer-ejs hexo-renderer-marked hexo-server pjax cross-env
+pnpm add hexo-bb-channel hexo-renderer-ejs hexo-renderer-marked hexo-server hexo-swpp swpp-backends cross-env
 ```
 
 将本主题目录（`themes/paper-moments`）放入你的站点 `themes/` 下，然后在站点根目录 `_config.yml` 中启用：
@@ -205,7 +205,7 @@ Hexo 构建（构建期）
   ├─ icon-registry.js → 输出 /icons.svg（仅实际用到的 symbol）
   ├─ gallery-pages.js → 生成相册页
   └─ hexo-bb-channel  → 生成说说页壳
-  └─ hexo-offline     → 生成 Service Worker（预缓存页面壳）
+  └─ hexo-swpp        → 生成 Service Worker（SWPP 增量更新）
 
 浏览器运行时（运行时）
   ├─ hexo-bb-channel  → 从 channel-api 拉取 Telegram 说说

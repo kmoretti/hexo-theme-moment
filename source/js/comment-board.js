@@ -1,4 +1,4 @@
-(() => {
+window.paperMomentsPage?.registerModule('comment-board', () => {
   const root = document.querySelector('[data-comment-board]');
   if (!root || root.dataset.commentBoardReady === 'true') return;
   root.dataset.commentBoardReady = 'true';
@@ -408,5 +408,5 @@
     screen?.replaceChildren();
     delete root.dataset.commentBoardReady;
   };
-  window.paperMomentsPjax?.registerCleanup?.(cleanup);
-})();
+  window.paperMomentsPage?.registerCleanup(cleanup);
+});

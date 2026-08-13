@@ -1,4 +1,4 @@
-(() => {
+window.paperMomentsPage?.registerModule('friendlink-form', () => {
   const root = document.querySelector('[data-friendlink-form-root]');
   if (!root) return;
 
@@ -286,4 +286,5 @@
     });
   });
   updateVisibility();
-})();
+  window.paperMomentsPage?.registerCleanup(cancelAllRequests);
+});

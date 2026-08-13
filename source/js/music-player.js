@@ -274,11 +274,6 @@
     if (dur) audio.currentTime = (parseInt(rangeEl.value, 10) / 1000) * dur;
   });
 
-  document.addEventListener('pjax:complete', () => {
-    setToggleIcon();
-    setVolumeIcon();
-  });
-
   loadTrack(0);
   setToggleIcon();
   setVolumeIcon();

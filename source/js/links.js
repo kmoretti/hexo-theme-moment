@@ -1,4 +1,4 @@
-(() => {
+window.paperMomentsPage?.registerModule('links', ({ signal }) => {
   const settings = window.paperMomentsConfig || {};
   const linksConfig = settings.links || {};
   const root = document.querySelector('[data-links-root]');
@@ -253,11 +253,11 @@
     summary.replaceChildren();
     try {
       const results = await Promise.allSettled([
-        fetch(text(linksConfig.data_url), { cache: 'no-store' }).then(response => {
+        fetch(text(linksConfig.data_url), { cache: 'no-store', signal }).then(response => {
           if (!response.ok) throw new Error(`links.yml ${response.status}`);
           return response.text();
         }),
-        fetch(text(linksConfig.latency_url), { cache: 'no-store' }).then(response => {
+        fetch(text(linksConfig.latency_url), { cache: 'no-store', signal }).then(response => {
           if (!response.ok) throw new Error(`link.json ${response.status}`);
           return response.json();
         }),
@@ -293,4 +293,4 @@
 
   retry.addEventListener('click', load);
   load();
-})();
+});

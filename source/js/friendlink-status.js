@@ -1,4 +1,4 @@
-(() => {
+window.paperMomentsPage?.registerModule('friendlink-status', () => {
   const root = document.querySelector('[data-friendlink-status-root]');
   if (!root) return;
 
@@ -257,4 +257,8 @@
   });
   retry.addEventListener('click', load);
   load();
-})();
+  window.paperMomentsPage?.registerCleanup(() => {
+    cancelRequest();
+    window.clearTimeout(searchTimer);
+  });
+});

@@ -1,4 +1,4 @@
-(function () {
+window.paperMomentsPage?.registerModule('site-intro', () => {
   'use strict';
 
   // 友链页「本站信息」代码块：JSON/YAML 切换 + 一键复制
@@ -93,4 +93,4 @@
       }
     });
   }
-})();
+});

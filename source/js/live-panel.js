@@ -1,4 +1,4 @@
-(function () {
+window.paperMomentsPage?.registerModule('live-panel', () => {
   'use strict';
 
   // 首页 Live Dashboard 面板：通过 live-dashboard 公开接口拉取数据并渲染为本站风格组件。
@@ -221,8 +221,5 @@
 
   init();
 
-  // PJAX 切页时由 pjax.js 统一执行 cleanup；若未注册也至少保证不残留定时器。
-  if (window.paperMomentsPjax && typeof window.paperMomentsPjax.registerCleanup === 'function') {
-    window.paperMomentsPjax.registerCleanup(destroy);
-  }
-})();
+  window.paperMomentsPage?.registerCleanup(destroy);
+});

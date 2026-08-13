@@ -11,8 +11,17 @@
 <% const isGalleryPage = page.layout === 'gallery' || String(page.page_type || '').startsWith('gallery-'); %>
 <% const isCommentPage = page.layout === 'comment' || page.page_type === 'comment'; %>
 <% const isHomePage = page.layout === 'index' || page.page_type === 'index'; %>
+<% const pageModules = []; %>
+<% if (isLinksPage) pageModules.push('links', 'friendlink-form', 'friendlink-status', 'site-intro'); %>
+<% if (isHomePage) pageModules.push('live-panel'); %>
+<% if (isAboutPage) pageModules.push('about'); %>
+<% if (isFcirclePage) pageModules.push('fcircle'); %>
+<% if (isGalleryPage) pageModules.push('gallery'); %>
+<% if (isCommentPage) pageModules.push('comment-board'); %>
+<% if (isShuoshuoPage) pageModules.push('shuoshuo', 'reactions'); %>
 <% const twikoo = config.twikoo || {}; %>
 <% const comments = theme.comments || {}; %>
+<% if ((isShuoshuoPage || isCommentPage) && comments.enable !== false) pageModules.push('comments'); %>
 <% const configuredTwikooVersion = String(comments.twikoo_version || twikoo.version || '1.7.15'); %>
 <% const twikooVersion = /^[0-9]+\.[0-9]+\.[0-9]+$/.test(configuredTwikooVersion) ? configuredTwikooVersion : '1.7.15'; %>
 <% const pwa = theme.pwa || {}; %>
@@ -72,7 +81,6 @@
     <script src="<%= url_for('js/bb-guard.js') %>"></script>
     <script src="<%= url_for('js/icons.js') %>" defer></script>
     <script src="<%= url_for('js/media-lightbox.js') %>" defer></script>
-    <script src="<%= url_for('js/comments.js') %>" defer></script>
     <% if (config.url) { %><link rel="canonical" href="<%= canonicalUrl %>"><% } %>
   </head>
   <body data-root="<%= rootPath %>">
@@ -127,24 +135,8 @@
       </div>
     </div>
     <% } %>
-    <!-- PJAX 状态区：每页变化的配置与页面脚本，PJAX 切换时整体替换并自动重执行（MoOx/pjax executeScripts） -->
-    <script>
-      // 页面专属脚本可能早于 pjax.js 的 defer 执行；先建立稳定的清理注册表，避免慢请求在切页后回写。
-      window.paperMomentsPjax = window.paperMomentsPjax || {
-        cleanupFns: [],
-        registerCleanup(fn) {
-          if (typeof fn === 'function') this.cleanupFns.push(fn);
-        },
-        runCleanup() {
-          const fns = this.cleanupFns;
-          this.cleanupFns = [];
-          fns.forEach(fn => { try { fn(); } catch (_) {} });
-        },
-      };
-    </script>
-    <div id="pjax-state">
-      <script>
-        window.paperMomentsConfig = <%- JSON.stringify({
+    <div id="pjax-state" data-page-modules="<%= pageModules.join(',') %>">
+      <script type="application/json" data-paper-moments-config><%- JSON.stringify({
           profile: theme.profile,
           shuoshuo: theme.shuoshuo,
           comments: theme.comments,
@@ -170,26 +162,24 @@
           },
           themeKey: appearanceThemeKey,
           accentKey: appearanceAccentKey,
-        }).replace(/</g, '\\u003c') %>;
-      </script>
-      <% if (isLinksPage) { %>
-        <script src="<%= url_for('js/links.js') %>" defer></script>
-        <script src="<%= url_for('js/friendlink-form.js') %>" defer></script>
-        <script src="<%= url_for('js/friendlink-status.js') %>" defer></script>
-        <script src="<%= url_for('js/site-intro.js') %>" defer></script>
-      <% } %>
-      <% if (isHomePage) { %><script src="<%= url_for('js/live-panel.js') %>" defer></script><% } %>
-      <% if (isAboutPage) { %><script src="<%= url_for('js/about.js') %>" defer></script><% } %>
-      <% if (isFcirclePage) { %><script src="<%= url_for('js/fcircle.js') %>" defer></script><% } %>
-      <% if (isGalleryPage) { %><script src="<%= url_for('js/gallery.js') %>" defer></script><% } %>
-      <% if (isCommentPage) { %><script src="<%= url_for('js/comment-board.js') %>" defer></script><% } %>
-      <% if (isShuoshuoPage) { %><script src="<%= url_for('js/shuoshuo.js') %>" defer></script><% } %>
-      <% if (isShuoshuoPage) { %><script src="<%= url_for('js/reactions.js') %>" defer></script><% } %>
+        }).replace(/</g, '\\u003c') %></script>
     </div>
+    <script src="<%= url_for('js/vendor/swup.min.js') %>" defer></script>
+    <script src="<%= url_for('js/page-runtime.js') %>" defer></script>
+    <script src="<%= url_for('js/links.js') %>" defer></script>
+    <script src="<%= url_for('js/friendlink-form.js') %>" defer></script>
+    <script src="<%= url_for('js/friendlink-status.js') %>" defer></script>
+    <script src="<%= url_for('js/site-intro.js') %>" defer></script>
+    <script src="<%= url_for('js/live-panel.js') %>" defer></script>
+    <script src="<%= url_for('js/about.js') %>" defer></script>
+    <script src="<%= url_for('js/fcircle.js') %>" defer></script>
+    <script src="<%= url_for('js/gallery.js') %>" defer></script>
+    <script src="<%= url_for('js/comment-board.js') %>" defer></script>
+    <script src="<%= url_for('js/shuoshuo.js') %>" defer></script>
+    <script src="<%= url_for('js/reactions.js') %>" defer></script>
+    <script src="<%= url_for('js/comments.js') %>" defer></script>
     <script src="<%= url_for('js/theme.js') %>" defer></script>
     <script src="<%= url_for('js/music-player.js') %>" defer></script>
-    <script src="<%= url_for('js/vendor/pjax.min.js') %>" defer></script>
-    <script src="<%= url_for('js/pjax.js') %>" defer></script>
     <% if (pwaEnabled) { %>
       <script>
         (() => {
@@ -213,8 +203,9 @@
             showUpdateNotice('网站已更新，正在刷新……');
             window.setTimeout(() => window.location.reload(), 240);
           });
+          const serviceWorkerUrl = <%- JSON.stringify(url_for('sw.js')).replace(/</g, '\\u003c') %>;
           const register = () => {
-            navigator.serviceWorker.register(<%- JSON.stringify(url_for('service-worker.js')).replace(/</g, '\\u003c') %>, { scope: <%- JSON.stringify(config.root || '/') %> }).then(registration => {
+            navigator.serviceWorker.register(serviceWorkerUrl, { scope: <%- JSON.stringify(config.root || '/') %> }).then(registration => {
               const watchWorker = worker => {
                 worker.addEventListener('statechange', () => {
                   if (worker.state === 'installed' && navigator.serviceWorker.controller) {
@@ -230,8 +221,21 @@
               registration.update();
             }).catch(() => {});
           };
-          if (document.readyState === 'complete') register();
-          else window.addEventListener('load', register);
+          const unregisterStaleWorkers = () => {
+            navigator.serviceWorker.getRegistrations().then(registrations => {
+              registrations.forEach(registration => registration.unregister());
+            }).catch(() => {});
+          };
+          const registerWhenAvailable = () => {
+            window.fetch(serviceWorkerUrl, { method: 'HEAD', cache: 'no-store' })
+              .then(response => {
+                if (response.ok) register();
+                else unregisterStaleWorkers();
+              })
+              .catch(() => unregisterStaleWorkers());
+          };
+          if (document.readyState === 'complete') registerWhenAvailable();
+          else window.addEventListener('load', registerWhenAvailable);
           window.addEventListener('pageshow', hideUpdateNotice, { once: true });
         })();
       </script>

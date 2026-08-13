@@ -1,4 +1,4 @@
-(() => {
+window.paperMomentsPage?.registerModule('about', ({ signal }) => {
   const settings = window.paperMomentsConfig || {};
   const aboutConfig = settings.about || {};
   const sponsorsConfig = aboutConfig.sponsors || {};
@@ -141,9 +141,10 @@
     }
 
     try {
-      const response = await fetch(endpoint, { cache: 'no-store' });
+      const response = await fetch(endpoint, { cache: 'no-store', signal });
       if (!response.ok) throw new Error(`sponsors.json ${response.status}`);
       const data = await response.json();
+      if (signal.aborted || !document.contains(sponsorsRoot)) return;
       const list = Array.isArray(data.sponsors) ? data.sponsors.filter(item => text(item.name)) : [];
 
       const remoteSupport = safeUrl(data.afdian);
@@ -163,10 +164,12 @@
         setText(status, text(sponsorsConfig.empty_label) || '暂时还没有赞助记录，期待你的第一杯咖啡。');
         if (people) people.hidden = true;
       }
-    } catch (_) {
-      wall.replaceChildren();
-      setText(status, text(sponsorsConfig.error_label) || '赞助名单暂时无法加载，请稍后重试。');
-      setToolbar(true, '远程赞助数据加载失败。');
+    } catch (error) {
+      if (!signal.aborted && document.contains(sponsorsRoot)) {
+        wall.replaceChildren();
+        setText(status, text(sponsorsConfig.error_label) || '赞助名单暂时无法加载，请稍后重试。');
+        setToolbar(true, '远程赞助数据加载失败。');
+      }
     } finally {
       load.busy = false;
     }
@@ -233,9 +236,7 @@
       if (event.key === 'Escape' && !detail.hidden) closeDetail();
     };
     document.addEventListener('keydown', onKeydown);
-    if (window.paperMomentsPjax) {
-      window.paperMomentsPjax.registerCleanup(() => document.removeEventListener('keydown', onKeydown));
-    }
+    window.paperMomentsPage?.registerCleanup(() => document.removeEventListener('keydown', onKeydown));
   }
 
   if (retry) retry.addEventListener('click', load);
@@ -248,4 +249,4 @@
   }
 
   load();
-})();
+});

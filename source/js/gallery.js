@@ -1,4 +1,4 @@
-(() => {
+window.paperMomentsPage?.registerModule('gallery', () => {
   'use strict';
   const root = document.querySelector('[data-gallery-page][data-gallery-kind="album"]');
   if (!root) return;
@@ -147,4 +147,4 @@
   } else {
     bindMediaButtons(root);
   }
-})();
+});
