@@ -13,6 +13,12 @@ assert.match(
   'Live Dashboard 的 current 请求必须显式绕过浏览器与 Service Worker 缓存'
 )
 
+assert.match(
+  livePanel,
+  /catch(?: \(\w+\))? \{[\s\S]*?showFallback\(\);[\s\S]*?scheduleRefresh\(\);/,
+  'Live Dashboard 的请求失败后必须继续调度下一次刷新，以从临时断连中自动恢复'
+)
+
 assert.doesNotMatch(
   swppConfig,
   /host === 'live\.081531\.xyz' && \^\\\/api\\\/\(current\|config\)\$\/.test\(pathname\)\)\s*\{\s*return 60000/,

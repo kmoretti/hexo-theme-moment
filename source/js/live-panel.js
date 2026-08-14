@@ -176,14 +176,19 @@ window.paperMomentsPage?.registerModule('live-panel', () => {
   async function fetchCurrent() {
     if (isDestroyed || !apiBase) return;
     if (abortCtrl) abortCtrl.abort();
-    abortCtrl = new AbortController();
+    const requestCtrl = new AbortController();
+    abortCtrl = requestCtrl;
+    let timedOut = false;
 
-    const timeoutId = window.setTimeout(() => abortCtrl && abortCtrl.abort(), TIMEOUT_MS);
+    const timeoutId = window.setTimeout(() => {
+      timedOut = true;
+      requestCtrl.abort();
+    }, TIMEOUT_MS);
     try {
       const res = await window.fetch(`${apiBase}/current`, {
         method: 'GET',
         cache: 'no-store',
-        signal: abortCtrl.signal,
+        signal: requestCtrl.signal,
         headers: { Accept: 'application/json' },
         referrerPolicy: 'no-referrer-when-downgrade',
       });
@@ -193,10 +198,13 @@ window.paperMomentsPage?.registerModule('live-panel', () => {
       if (isDestroyed) return;
       render(data);
       scheduleRefresh();
-    } catch (err) {
+    } catch (error) {
       window.clearTimeout(timeoutId);
-      if (isDestroyed || err && err.name === 'AbortError') return;
+      if (isDestroyed || error?.name === 'AbortError' && !timedOut) return;
       showFallback();
+      scheduleRefresh();
+    } finally {
+      if (abortCtrl === requestCtrl) abortCtrl = null;
     }
   }
 
