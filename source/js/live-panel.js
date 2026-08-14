@@ -182,6 +182,7 @@ window.paperMomentsPage?.registerModule('live-panel', () => {
     try {
       const res = await window.fetch(`${apiBase}/current`, {
         method: 'GET',
+        cache: 'no-store',
         signal: abortCtrl.signal,
         headers: { Accept: 'application/json' },
         referrerPolicy: 'no-referrer-when-downgrade',
